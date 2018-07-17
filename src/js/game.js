@@ -2,40 +2,43 @@ import '../css/game.styl';
 
 import Phaser from 'phaser';
 
-const WIDTH = 960;
-const HEIGHT = 600;
+// const Matter = Phaser.Physics.Matter.Matter;
 
-const MATTER = Phaser.Physics.Matter.Matter;
+const CONFIG = {
+    width: 960,
+    height: 600,
+    maxPlayerFallAngle: 75
+};
 
 const COLLISION_CATEGORIES = {
     default: 0x0001,
-    body: 0x0002,
-    backgrounds: [
-        0x0004,
-        0x0008,
-        0x0016
-    ]
+    player: 0x0002,
+    rightHand: 0x0004,
+    leftHand: 0x0008
 };
 
-const WORLD_X = 1;
-const MAX_FALL_ANGLE = 75;
+let GAME_OBJECTS = {
+    backgrounds: null,
+    ground: null,
+    player: null
+};
 
-let backgrounds;
-let ground;
-let player;
-let cursors;
+let COUNTER = null;
+let CURSORS = null;
 
-class Game {
+let PROGRESS = null;
+
+class Main {
     constructor() {
         this.config = {
             type: Phaser.AUTO,
-            width: WIDTH,
-            height: HEIGHT,
+            width: CONFIG.width,
+            height: CONFIG.height,
             physics: {
                 default: 'matter',
                 matter: {
                     // debug: true,
-                    // debugBodyColor: 0xffffff
+                    debugBodyColor: 0xffffff
                 }
             },
             scene: {
@@ -49,101 +52,108 @@ class Game {
 }
 
 class Player {
-    constructor(game, x, y) {
+    constructor(game, params) {
         this.game = game;
         this.matter = this.game.matter;
 
         this.isStatic = false;
         this.constraints = {};
-        this.distanceX = 0;
 
         this.sizes = {
             top: {
-                width: 100,
-                height: 200
+                width: 84,
+                height: 139
             },
             bottom: {
-                width: 100,
-                height: 120
+                width: 159,
+                height: 184
             },
-            axisoffset: 40,
-            springLength: 210
+            hand: {
+                width: 79,
+                height: 205
+            },
+            axisoffsetX: -5,
+            axisoffsetY: 80,
+            springLength: 270
         };
 
-        // this.top = MATTER.Bodies.rectangle(x, y - this.sizes.top.height / 2, this.sizes.top.width, this.sizes.top.height, {
-        //     collisionFilter: {
-        //         mask: COLLISION_CATEGORIES.default
-        //     }
-        // });
+        this.backpack = this.matter.add.image(params.x, params.y, params.textures.backpack, null, {
+            density: 0,
+            collisionFilter: {
+                category: COLLISION_CATEGORIES.rightHand,
+                mask: null
+            }
+        });
 
-        this.top = this.matter.add.image(x, y - this.sizes.top.height / 2, 'body_top', null, {
+        this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
+            density: 0.0005,
+            collisionFilter: {
+                category: COLLISION_CATEGORIES.rightHand,
+                mask: null
+            }
+        });
+
+        this.bottom = this.matter.add.sprite(params.x, params.y - this.sizes.bottom.height / 2, params.textures.bottom, 0, {
+            density: 10,
+            collisionFilter: {
+                category: COLLISION_CATEGORIES.player,
+                mask: COLLISION_CATEGORIES.default
+            }
+        });
+
+        this.top = this.matter.add.image(this.bottom.x - 10, this.bottom.y - 130, params.textures.top, null, {
             density: 0.0005,
             collisionFilter: {
                 mask: COLLISION_CATEGORIES.default
             }
         });
 
-        // this.bottom = MATTER.Bodies.rectangle(x, y, this.sizes.bottom.width, this.sizes.bottom.height, {
-        //     density: 10,
-        //     collisionFilter: {
-        //         category: COLLISION_CATEGORIES.body,
-        //         mask: COLLISION_CATEGORIES.default
-        //     }
-        // });
-
-        this.bottom = this.matter.add.image(x, y, 'body_bottom', null, {
-            density: 10,
+        this.leftHand = this.matter.add.image(params.x - this.sizes.top.width / 2 - 4, params.y - this.sizes.bottom.height + 42, params.textures.hands.left, null, {
+            density: 0.0005,
             collisionFilter: {
-                category: COLLISION_CATEGORIES.body,
-                mask: COLLISION_CATEGORIES.default
+                category: COLLISION_CATEGORIES.leftHand,
+                mask: null
             }
         });
 
-        this.connectBodyParts();
+        this.addConstraints();
+
+        // this.stop();
     }
 
-    connectBodyParts() {
-        // this.constraints.topBottom = MATTER.Constraint.create({
-        //     bodyA: this.bottom,
-        //     pointA: {
-        //         x: 0,
-        //         y: -this.sizes.axisoffset
-        //     },
-        //     bodyB: this.top,
-        //     pointB: {
-        //         x: 0,
-        //         y: this.sizes.axisoffset
-        //     },
-        //     length: 0,
-        //     stiffness: 0
-        // });
-        // this.matter.world.add(this.constraints.topBottom);
-
+    addConstraints() {
         this.constraints.topBottom = this.matter.add.constraint(this.bottom, this.top, 0, 0, {
             pointA: {
-                x: 0,
-                y: -this.sizes.axisoffset
+                x: -10,
+                y: -75
             },
             pointB: {
                 x: 0,
-                y: this.sizes.axisoffset
+                y: 55
             }
         });
 
-        // this.constraints.bottomLeft = MATTER.Constraint.create({
-        //     bodyA: this.bottom,
-        //     pointA: {
-        //         x: this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     bodyB: this.top,
-        //     pointB: {
-        //         x: -this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     },
-        //     length: this.sizes.springLength,
-        //     stiffness: 0.001
-        // });
+        this.constraints.rightHand = this.matter.add.constraint(this.top, this.rightHand, 0, 0, {
+            pointA: {
+                x: this.sizes.top.width/2 - 5,
+                y: -this.sizes.top.height/2 + 52
+            },
+            pointB: {
+                x: -10,
+                y: -this.sizes.hand.height/2 + 5
+            }
+        });
+
+        this.constraints.leftHand = this.matter.add.constraint(this.top, this.leftHand, 0, 0, {
+            pointA: {
+                x: -this.sizes.top.width/2 + 8,
+                y: -this.sizes.top.height/2 + 52
+            },
+            pointB: {
+                x: 3,
+                y: -this.sizes.hand.height/2 + 5
+            }
+        });
 
         this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
             pointA: {
@@ -156,22 +166,7 @@ class Player {
             }
         });
 
-        // this.constraints.bottomRight = MATTER.Constraint.create({
-        //     bodyA: this.bottom,
-        //     pointA: {
-        //         x: -this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     bodyB: this.top,
-        //     pointB: {
-        //         x: this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     },
-        //     length: this.sizes.springLength,
-        //     stiffness: 0.001
-        // });
-
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
             pointA: {
                 x: -this.sizes.bottom.width / 2,
                 y: this.sizes.bottom.height / 2
@@ -181,44 +176,36 @@ class Player {
                 y: -this.sizes.top.height / 2
             }
         });
-
-        // this.body = MATTER.Composite.create({
-        //     bodies: [this.top, this.bottom],
-        //     constraints: [this.constraints.topBottom, this.constraints.bottomLeft, this.constraints.bottomRight]
-        // });
-
-        // this.matter.world.add(this.body);
     }
 
     stop() {
-        // MATTER.Body.setStatic(this.top, true);
-        // MATTER.Body.setStatic(this.bottom, true);
         this.top.setStatic(true);
         this.bottom.setStatic(true);
+        this.leftHand.setStatic(true);
+        this.rightHand.setStatic(true);
         this.isStatic = true;
     }
 
     play() {
-        // MATTER.Body.setStatic(this.top, false);
-        // MATTER.Body.setStatic(this.bottom, false);
         this.top.setStatic(false);
         this.bottom.setStatic(false);
+        this.leftHand.setStatic(false);
+        this.rightHand.setStatic(false);
         this.isStatic = false;
     }
 }
 
 class Ground {
-    constructor(game, x, y) {
+    constructor(game, params) {
         this.game = game;
         this.matter = this.game.matter;
 
-        this.ground = MATTER.Bodies.rectangle(x, y, WIDTH * WORLD_X, 90, {
+        this.ground = this.matter.add.rectangle(params.x, params.y, params.width, params.height, {
             isStatic: true,
             collisionFilter: {
-                mask: COLLISION_CATEGORIES.body
-            },
+                mask: COLLISION_CATEGORIES.player
+            }
         });
-        this.matter.world.add(this.ground);
     }
 }
 
@@ -229,15 +216,15 @@ class Backgrounds {
 
         this.backgrounds = list;
 
-        this.backgrounds.forEach((item, index) => {
+        this.backgrounds.forEach(item => {
             this.create(item);
         });
     }
 
-    create(item, index) {
-        item.instance = this.matter.add.image(item.x, item.y, item.texture, null, {
+    create(item) {
+        item.instance = this.matter.add.image(0, 0, item.texture, null, {
             collisionFilter: {
-                category: COLLISION_CATEGORIES.backgrounds[index]
+                category: null
             }
         }).setIgnoreGravity(true).setOrigin(0, 0);
     }
@@ -246,8 +233,8 @@ class Backgrounds {
         this.backgrounds.forEach(item => {
             item.instance.setVelocityX(item.velocity);
 
-            if (item.instance.x < -Math.abs(item.x + WIDTH*2)) {
-                item.instance.setPosition(item.x, item.y);
+            if (item.instance.x < -CONFIG.width*2) {
+                item.instance.setPosition(0, 0);
             }
         });
     }
@@ -264,12 +251,18 @@ function preload() {
     this.load.image('background_front', './assets/background_front.png');
     this.load.image('background_ground', './assets/background_ground.png');
 
-    this.load.image('body_top', './assets/body_top.png');
-    this.load.image('body_bottom', './assets/body_bottom.png');
+    this.load.image('body', './assets/player/body.png');
+    this.load.image('rightArm', './assets/player/arm_right.png');
+    this.load.image('leftArm', './assets/player/arm_left.png');
+
+    this.load.spritesheet('legs', './assets/player/legs.png', {
+        frameWidth: 159,
+        frameHeight: 184
+    });
 
     let text = this.make.text({
-        x: WIDTH / 2,
-        y: HEIGHT / 2,
+        x: CONFIG.width / 2,
+        y: CONFIG.height / 2,
         text: '0%',
         style: {
             font: '18px monospace',
@@ -289,76 +282,101 @@ function preload() {
 
 function create() {
 
-    let worldCenter = (WIDTH * WORLD_X) / 2;
-    let worldMiddle = HEIGHT / 2;
-
-    /** World bounds */
-    // this.matter.world.setBounds(0, 0, WIDTH * WORLD_X, HEIGHT);
+    let worldCenter = CONFIG.width / 2;
+    let worldMiddle = CONFIG.height / 2;
 
     /** Background */
-    backgrounds = new Backgrounds(this, [
+    GAME_OBJECTS.backgrounds = new Backgrounds(this, [
         {
-            x: 0,
-            y: 0,
             texture: 'background_back',
             velocity: -0.5
         },
         {
-            x: 0,
-            y: 0,
             texture: 'background_front',
             velocity: -1
         },
         {
-            x: 0,
-            y: 0,
             texture: 'background_ground',
             velocity: -2
         }
     ]);
 
     /** Ground */
-    ground = new Ground(this, worldCenter, HEIGHT - 40);
+    GAME_OBJECTS.ground = new Ground(this, {
+        x: worldCenter,
+        y: CONFIG.height - 25,
+        width: CONFIG.width,
+        height: 50
+    });
 
     /** Player */
-    player = new Player(this, worldCenter/2, HEIGHT - 160);
+    GAME_OBJECTS.player = new Player(this, {
+        x: worldCenter/2,
+        y: CONFIG.height - 50,
+        textures: {
+            top: 'body',
+            bottom: 'legs',
+            hands: {
+                left: 'leftArm',
+                right: 'rightArm'
+            }
+        }
+    });
+
+    this.anims.create({
+        key: 'walking',
+        frames: this.anims.generateFrameNumbers('legs', { start: 0, end: 120 }),
+        frameRate: 60,
+        repeat: -1
+    });
 
     /** Cursors */
-    cursors = this.input.keyboard.createCursorKeys();
+    CURSORS = this.input.keyboard.createCursorKeys();
+
+    /** Counter */
+    PROGRESS = this.time.addEvent({ loop: true });
+    COUNTER = this.make.text({
+        x: CONFIG.width,
+        y: 0,
+        padding: 20,
+        text: '0м',
+        style: {
+            font: '32px monospace',
+            fill: '#ffffff'
+        }
+    }).setOrigin(1, 0);
 }
 
 function update() {
+    if (!GAME_OBJECTS.player.isStatic) {
 
-    if (!player.isStatic) {
+        /** PLay walking animation */
+        GAME_OBJECTS.player.bottom.anims.play('walking', true);
 
         /** Control balance */
-        if (cursors.right.isDown) {
-            // if (!player.isStatic) MATTER.Body.setVelocity(player.top, {
-            //     x: 2,
-            //     y: 0
-            // });
-
-            player.top.setVelocityX(2);
-
-        } else if (cursors.left.isDown) {
-            // if (!player.isStatic) MATTER.Body.setVelocity(player.top, {
-            //     x: -2,
-            //     y: 0
-            // });
-
-            player.top.setVelocityX(-2);
+        if (CURSORS.right.isDown) {
+            GAME_OBJECTS.player.top.setVelocityX(2);
+        } else if (CURSORS.left.isDown) {
+            GAME_OBJECTS.player.top.setVelocityX(-2);
         }
 
-        /** If angle is too large */
-        if (player.top.angle > MAX_FALL_ANGLE) {
-            player.stop();
-        } else if (player.top.angle < -MAX_FALL_ANGLE) {
-            player.stop();
-        } else {}
+        /** If fall angle is too large, stop game */
+        let playerAngle = GAME_OBJECTS.player.top.angle;
+        let isFallAngle = playerAngle > CONFIG.maxPlayerFallAngle || playerAngle < -CONFIG.maxPlayerFallAngle;
+
+        if (isFallAngle) {
+            GAME_OBJECTS.player.stop();
+            GAME_OBJECTS.backgrounds.stop();
+            GAME_OBJECTS.player.bottom.anims.stop('walking', true);
+        }
+
+        /** Update backgrounds position */
+        GAME_OBJECTS.backgrounds.updatePosition();
+
+        /** Update counter */
+        let walkedDistance = Math.floor(PROGRESS.getElapsedSeconds());
+        COUNTER.setText(walkedDistance + 'м');
     }
-
-    backgrounds.updatePosition();
-
 }
 
-export default Game;
+export default Main;
