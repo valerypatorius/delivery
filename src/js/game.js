@@ -14,7 +14,8 @@ const COLLISION_CATEGORIES = {
     default: 0x0001,
     player: 0x0002,
     rightHand: 0x0004,
-    leftHand: 0x0008
+    leftHand: 0x0008,
+    backpack: 0x0016
 };
 
 let GAME_OBJECTS = {
@@ -77,13 +78,13 @@ class Player {
             springLength: 270
         };
 
-        // this.backpack = this.matter.add.image(params.x, params.y, params.textures.backpack, null, {
-        //     density: 0,
-        //     collisionFilter: {
-        //         category: COLLISION_CATEGORIES.rightHand,
-        //         mask: null
-        //     }
-        // });
+        this.backpack = this.matter.add.image(params.x, params.y - this.sizes.bottom.height - 40, params.textures.backpack, null, {
+            density: 0.0001,
+            collisionFilter: {
+                category: COLLISION_CATEGORIES.backpack,
+                mask: null
+            }
+        });
 
         this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
             density: 0.0001,
@@ -155,6 +156,28 @@ class Player {
             }
         });
 
+        this.constraints.backpackTop = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
+            pointA: {
+                x: 0,
+                y: 0
+            },
+            pointB: {
+                x: 0,
+                y: 0
+            }
+        });
+
+        this.constraints.backpackBottom = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
+            pointA: {
+                x: 0,
+                y: 50
+            },
+            pointB: {
+                x: 0,
+                y: 50
+            }
+        });
+
         // this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
         //     pointA: {
         //         x: this.sizes.bottom.width / 2,
@@ -183,6 +206,7 @@ class Player {
         this.bottom.setStatic(true);
         this.leftHand.setStatic(true);
         this.rightHand.setStatic(true);
+        this.backpack.setStatic(true);
         this.isStatic = true;
     }
 
@@ -191,6 +215,7 @@ class Player {
         this.bottom.setStatic(false);
         this.leftHand.setStatic(false);
         this.rightHand.setStatic(false);
+        this.backpack.setStatic(false);
         this.isStatic = false;
     }
 }
@@ -254,6 +279,7 @@ function preload() {
     this.load.image('body', './assets/player/body.png');
     this.load.image('rightArm', './assets/player/arm_right.png');
     this.load.image('leftArm', './assets/player/arm_left.png');
+    this.load.image('backpack', './assets/player/backpack.png');
 
     this.load.spritesheet('legs', './assets/player/legs.png', {
         frameWidth: 159,
@@ -319,7 +345,8 @@ function create() {
             hands: {
                 left: 'leftArm',
                 right: 'rightArm'
-            }
+            },
+            backpack: 'backpack'
         }
     });
 
@@ -355,9 +382,9 @@ function update() {
 
         /** Control balance */
         if (CURSORS.right.isDown) {
-            GAME_OBJECTS.player.top.setVelocityX(1);
+            GAME_OBJECTS.player.top.setVelocity(1.25, 2);
         } else if (CURSORS.left.isDown) {
-            GAME_OBJECTS.player.top.setVelocityX(-1);
+            GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
         }
 
         /** If fall angle is too large, stop game */
