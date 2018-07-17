@@ -77,16 +77,16 @@ class Player {
             springLength: 270
         };
 
-        this.backpack = this.matter.add.image(params.x, params.y, params.textures.backpack, null, {
-            density: 0,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.rightHand,
-                mask: null
-            }
-        });
+        // this.backpack = this.matter.add.image(params.x, params.y, params.textures.backpack, null, {
+        //     density: 0,
+        //     collisionFilter: {
+        //         category: COLLISION_CATEGORIES.rightHand,
+        //         mask: null
+        //     }
+        // });
 
         this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
-            density: 0.0005,
+            density: 0.0001,
             collisionFilter: {
                 category: COLLISION_CATEGORIES.rightHand,
                 mask: null
@@ -102,14 +102,14 @@ class Player {
         });
 
         this.top = this.matter.add.image(this.bottom.x - 10, this.bottom.y - 130, params.textures.top, null, {
-            density: 0.0005,
+            density: 0.001,
             collisionFilter: {
                 mask: COLLISION_CATEGORIES.default
             }
         });
 
         this.leftHand = this.matter.add.image(params.x - this.sizes.top.width / 2 - 4, params.y - this.sizes.bottom.height + 42, params.textures.hands.left, null, {
-            density: 0.0005,
+            density: 0.0001,
             collisionFilter: {
                 category: COLLISION_CATEGORIES.leftHand,
                 mask: null
@@ -155,27 +155,27 @@ class Player {
             }
         });
 
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: -this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
+        // this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        //     pointA: {
+        //         x: this.sizes.bottom.width / 2,
+        //         y: this.sizes.bottom.height / 2
+        //     },
+        //     pointB: {
+        //         x: -this.sizes.top.width / 2,
+        //         y: -this.sizes.top.height / 2
+        //     }
+        // });
 
-        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: -this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
+        // this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        //     pointA: {
+        //         x: -this.sizes.bottom.width / 2,
+        //         y: this.sizes.bottom.height / 2
+        //     },
+        //     pointB: {
+        //         x: this.sizes.top.width / 2,
+        //         y: -this.sizes.top.height / 2
+        //     }
+        // });
     }
 
     stop() {
@@ -355,9 +355,9 @@ function update() {
 
         /** Control balance */
         if (CURSORS.right.isDown) {
-            GAME_OBJECTS.player.top.setVelocityX(2);
+            GAME_OBJECTS.player.top.setVelocityX(1);
         } else if (CURSORS.left.isDown) {
-            GAME_OBJECTS.player.top.setVelocityX(-2);
+            GAME_OBJECTS.player.top.setVelocityX(-1);
         }
 
         /** If fall angle is too large, stop game */
