@@ -1,12 +1,15 @@
 import '../css/game.styl';
 
 import Phaser from 'phaser';
+import { isMobile } from './lib/check';
 
 // const Matter = Phaser.Physics.Matter.Matter;
 
 const CONFIG = {
-    width: 960,
-    height: 600,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    phantomWidth: 960,
+    phantomHeight: 600,
     maxPlayerFallAngle: 75
 };
 
@@ -26,6 +29,7 @@ let GAME_OBJECTS = {
 
 let COUNTER = null;
 let CURSORS = null;
+let POINTER = null;
 
 let PROGRESS = null;
 
@@ -35,6 +39,7 @@ class Main {
             type: Phaser.AUTO,
             width: CONFIG.width,
             height: CONFIG.height,
+            // resolution: 0.5,
             physics: {
                 default: 'matter',
                 matter: {
@@ -247,19 +252,24 @@ class Backgrounds {
     }
 
     create(item) {
-        item.instance = this.matter.add.image(0, 0, item.texture, null, {
+        item.instance = this.matter.add.image(0, CONFIG.height, item.texture, null, {
             collisionFilter: {
                 category: null
             }
-        }).setIgnoreGravity(true).setOrigin(0, 0);
+        }).setIgnoreGravity(true).setOrigin(0, 1);
+
+        if (item.scale) {
+            let ratio = CONFIG.height / CONFIG.phantomHeight;
+            item.instance.setScale(1, ratio.toFixed(2));
+        }
     }
 
     updatePosition() {
         this.backgrounds.forEach(item => {
             item.instance.setVelocityX(item.velocity);
 
-            if (item.instance.x < -CONFIG.width*2) {
-                item.instance.setPosition(0, 0);
+            if (item.instance.x < -CONFIG.phantomWidth*2) {
+                item.instance.setPosition(0, CONFIG.height);
             }
         });
     }
@@ -315,11 +325,12 @@ function create() {
     GAME_OBJECTS.backgrounds = new Backgrounds(this, [
         {
             texture: 'background_back',
-            velocity: -0.5
+            velocity: -0.5,
+            scale: true
         },
         {
             texture: 'background_front',
-            velocity: -1
+            velocity: -2
         },
         {
             texture: 'background_ground',
@@ -337,7 +348,7 @@ function create() {
 
     /** Player */
     GAME_OBJECTS.player = new Player(this, {
-        x: worldCenter/2,
+        x: isMobile() ? worldCenter : worldCenter/2,
         y: CONFIG.height - 50,
         textures: {
             top: 'body',
@@ -360,6 +371,7 @@ function create() {
 
     /** Cursors */
     CURSORS = this.input.keyboard.createCursorKeys();
+    POINTER = this.input.pointer1;
 
     /** Counter */
     PROGRESS = this.time.addEvent({ loop: true });
@@ -381,11 +393,20 @@ function update() {
         /** PLay walking animation */
         GAME_OBJECTS.player.bottom.anims.play('walking', true);
 
-        /** Control balance */
+        /** Control balance with keyboard */
         if (CURSORS.right.isDown) {
             GAME_OBJECTS.player.top.setVelocity(1.25, 2);
         } else if (CURSORS.left.isDown) {
             GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
+        }
+
+        /** Control balance with touch and mouse */
+        if (POINTER.isDown) {
+            if (POINTER.worldX < CONFIG.width / 2) {
+                GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
+            } else if (POINTER.worldX >= CONFIG.width / 2) {
+                GAME_OBJECTS.player.top.setVelocity(1.25, 2);
+            }
         }
 
         /** If fall angle is too large, stop game */
@@ -402,8 +423,8 @@ function update() {
         GAME_OBJECTS.backgrounds.updatePosition();
 
         /** Update counter */
-        let walkedDistance = Math.floor(PROGRESS.getElapsedSeconds());
-        COUNTER.setText(walkedDistance + 'м');
+        let walkedDistance = PROGRESS.getElapsedSeconds();
+        COUNTER.setText(walkedDistance.toFixed(2) + 'м');
     }
 }
 
