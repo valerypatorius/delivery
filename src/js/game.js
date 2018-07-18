@@ -75,7 +75,7 @@ class Player {
             },
             axisoffsetX: -5,
             axisoffsetY: 80,
-            springLength: 270
+            springLength: 250
         };
 
         this.backpack = this.matter.add.image(params.x, params.y - this.sizes.bottom.height - 40, params.textures.backpack, null, {
@@ -178,27 +178,27 @@ class Player {
             }
         });
 
-        // this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-        //     pointA: {
-        //         x: this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     pointB: {
-        //         x: -this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     }
-        // });
+        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+            pointA: {
+                x: this.sizes.bottom.width / 2,
+                y: this.sizes.bottom.height / 2
+            },
+            pointB: {
+                x: -this.sizes.top.width / 2,
+                y: -this.sizes.top.height / 2
+            }
+        });
 
-        // this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-        //     pointA: {
-        //         x: -this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     pointB: {
-        //         x: this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     }
-        // });
+        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+            pointA: {
+                x: -this.sizes.bottom.width / 2,
+                y: this.sizes.bottom.height / 2
+            },
+            pointB: {
+                x: this.sizes.top.width / 2,
+                y: -this.sizes.top.height / 2
+            }
+        });
     }
 
     stop() {
@@ -350,6 +350,7 @@ function create() {
         }
     });
 
+    /** Prepare walking animation */
     this.anims.create({
         key: 'walking',
         frames: this.anims.generateFrameNumbers('legs', { start: 0, end: 120 }),
