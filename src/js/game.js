@@ -83,18 +83,18 @@ class Player {
             springLength: 250
         };
 
-        this.backpack = this.matter.add.image(params.x, params.y - this.sizes.bottom.height - 40, params.textures.backpack, null, {
-            density: 0.0001,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.backpack,
-                mask: null
-            }
-        });
-
         this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
             density: 0.0001,
             collisionFilter: {
                 category: COLLISION_CATEGORIES.rightHand,
+                mask: null
+            }
+        });
+
+        this.backpack = this.matter.add.image(params.x, params.y - this.sizes.bottom.height - 40, params.textures.backpack, null, {
+            density: 0.0001,
+            collisionFilter: {
+                category: COLLISION_CATEGORIES.backpack,
                 mask: null
             }
         });
