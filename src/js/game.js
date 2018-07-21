@@ -1,25 +1,16 @@
 import '../css/game.styl';
 
 import Phaser from 'phaser';
+
+import Config from './config';
+import Colors from './colors';
+import CollisionCategories from './collisionCategories';
+
+import Player from './player';
+import Ground from './ground';
+import Backgrounds from './backgrounds';
+
 import { isMobile } from './lib/check';
-
-// const Matter = Phaser.Physics.Matter.Matter;
-
-const CONFIG = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-    phantomWidth: 960,
-    phantomHeight: 600,
-    maxPlayerFallAngle: 75
-};
-
-const COLLISION_CATEGORIES = {
-    default: 0x0001,
-    player: 0x0002,
-    rightHand: 0x0004,
-    leftHand: 0x0008,
-    backpack: 0x0016
-};
 
 let GAME_OBJECTS = {
     backgrounds: null,
@@ -29,16 +20,27 @@ let GAME_OBJECTS = {
 
 let COUNTER = null;
 let CURSORS = null;
+let KEYS = null;
 let POINTER = null;
 
+let LOCATION = 0;
+let LOCATION_PROGRESS = 0;
+
 let PROGRESS = null;
+let SCORE = 0;
+
+let STATE = {
+    started: false,
+    paused: false,
+    stopped: false
+};
 
 class Main {
     constructor() {
         this.config = {
             type: Phaser.AUTO,
-            width: CONFIG.width,
-            height: CONFIG.height,
+            width: Config.width,
+            height: Config.height,
             // resolution: 0.5,
             physics: {
                 default: 'matter',
@@ -57,252 +59,76 @@ class Main {
     }
 }
 
-class Player {
-    constructor(game, params) {
-        this.game = game;
-        this.matter = this.game.matter;
-
-        this.isStatic = false;
-        this.constraints = {};
-
-        this.sizes = {
-            top: {
-                width: 84,
-                height: 139
-            },
-            bottom: {
-                width: 159,
-                height: 184
-            },
-            hand: {
-                width: 79,
-                height: 205
-            },
-            axisoffsetX: -5,
-            axisoffsetY: 80,
-            springLength: 250
-        };
-
-        this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
-            density: 0.0001,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.rightHand,
-                mask: null
-            }
-        });
-
-        this.backpack = this.matter.add.image(params.x, params.y - this.sizes.bottom.height - 40, params.textures.backpack, null, {
-            density: 0.0001,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.backpack,
-                mask: null
-            }
-        });
-
-        this.bottom = this.matter.add.sprite(params.x, params.y - this.sizes.bottom.height / 2, params.textures.bottom, 0, {
-            density: 10,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.player,
-                mask: COLLISION_CATEGORIES.default
-            }
-        });
-
-        this.top = this.matter.add.image(this.bottom.x - 10, this.bottom.y - 130, params.textures.top, null, {
-            density: 0.001,
-            collisionFilter: {
-                mask: COLLISION_CATEGORIES.default
-            }
-        });
-
-        this.leftHand = this.matter.add.image(params.x - this.sizes.top.width / 2 - 4, params.y - this.sizes.bottom.height + 42, params.textures.hands.left, null, {
-            density: 0.0001,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.leftHand,
-                mask: null
-            }
-        });
-
-        this.addConstraints();
-
-        // this.stop();
-    }
-
-    addConstraints() {
-        this.constraints.topBottom = this.matter.add.constraint(this.bottom, this.top, 0, 0, {
-            pointA: {
-                x: -10,
-                y: -75
-            },
-            pointB: {
-                x: 0,
-                y: 55
-            }
-        });
-
-        this.constraints.rightHand = this.matter.add.constraint(this.top, this.rightHand, 0, 0, {
-            pointA: {
-                x: this.sizes.top.width/2 - 5,
-                y: -this.sizes.top.height/2 + 52
-            },
-            pointB: {
-                x: -10,
-                y: -this.sizes.hand.height/2 + 5
-            }
-        });
-
-        this.constraints.leftHand = this.matter.add.constraint(this.top, this.leftHand, 0, 0, {
-            pointA: {
-                x: -this.sizes.top.width/2 + 8,
-                y: -this.sizes.top.height/2 + 52
-            },
-            pointB: {
-                x: 3,
-                y: -this.sizes.hand.height/2 + 5
-            }
-        });
-
-        this.constraints.backpackTop = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
-            pointA: {
-                x: 0,
-                y: 0
-            },
-            pointB: {
-                x: 0,
-                y: 0
-            }
-        });
-
-        this.constraints.backpackBottom = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
-            pointA: {
-                x: 0,
-                y: 50
-            },
-            pointB: {
-                x: 0,
-                y: 50
-            }
-        });
-
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: -this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
-
-        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: -this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
-    }
-
-    stop() {
-        this.top.setStatic(true);
-        this.bottom.setStatic(true);
-        this.leftHand.setStatic(true);
-        this.rightHand.setStatic(true);
-        this.backpack.setStatic(true);
-        this.isStatic = true;
-    }
-
-    play() {
-        this.top.setStatic(false);
-        this.bottom.setStatic(false);
-        this.leftHand.setStatic(false);
-        this.rightHand.setStatic(false);
-        this.backpack.setStatic(false);
-        this.isStatic = false;
-    }
-}
-
-class Ground {
-    constructor(game, params) {
-        this.game = game;
-        this.matter = this.game.matter;
-
-        this.ground = this.matter.add.rectangle(params.x, params.y, params.width, params.height, {
-            isStatic: true,
-            collisionFilter: {
-                mask: COLLISION_CATEGORIES.player
-            }
-        });
-    }
-}
-
-class Backgrounds {
-    constructor(game, list) {
-        this.game = game;
-        this.matter = this.game.matter;
-
-        this.backgrounds = list;
-
-        this.backgrounds.forEach(item => {
-            this.create(item);
-        });
-    }
-
-    create(item) {
-        item.instance = this.matter.add.image(0, CONFIG.height, item.texture, null, {
-            collisionFilter: {
-                category: null
-            }
-        }).setIgnoreGravity(true).setOrigin(0, 1);
-
-        if (item.scale) {
-            let ratio = CONFIG.height / CONFIG.phantomHeight;
-            item.instance.setScale(1, ratio.toFixed(2));
-        }
-    }
-
-    updatePosition() {
-        this.backgrounds.forEach(item => {
-            item.instance.setVelocityX(item.velocity);
-
-            if (item.instance.x < -CONFIG.phantomWidth*2) {
-                item.instance.setPosition(0, CONFIG.height);
-            }
-        });
-    }
-
-    stop() {
-        this.backgrounds.forEach(item => {
-            item.instance.setStatic(true);
-        });
-    }
-}
-
+/**
+ * Load assets, while showing progress bar
+ */
 function preload() {
-    this.load.image('background_back', './assets/background_back.png');
-    this.load.image('background_front', './assets/background_front.png');
-    this.load.image('background_ground', './assets/background_ground.png');
+    this.load.image('pixel', './assets/pixel.png');
 
-    this.load.image('body', './assets/player/body.png');
-    this.load.image('rightArm', './assets/player/arm_right.png');
-    this.load.image('leftArm', './assets/player/arm_left.png');
-    this.load.image('backpack', './assets/player/backpack.png');
+    /** Player body parts */
+    let path = './assets/player';
 
-    this.load.spritesheet('legs', './assets/player/legs.png', {
+    this.load.image('body', `${path}/body.png`);
+    this.load.image('rightArm', `.${path}/arm_right.png`);
+    this.load.image('leftArm', `${path}/arm_left.png`);
+    this.load.image('backpack', `${path}/backpack.png`);
+    this.load.spritesheet('legs', `${path}/legs.png`, {
         frameWidth: 159,
         frameHeight: 184
     });
 
+    /** Global backgrounds */
+    path = './assets/background/global';
+
+    for (let i = 1; i <= 5; i++){
+        this.load.image(`background_global_landscape_${i}`, `.${path}/landscape/${i}.png`);
+    }
+
+    this.load.image(`background_global_cords_1`, `${path}/cords/1.png`);
+    this.load.image(`background_global_ground_1`, `${path}/ground/1.png`);
+    this.load.image(`background_global_grass_1`, `${path}/grass/1.png`);
+
+    /** Wasteland backgrounds */
+    path = './assets/background/wasteland';
+
+    for (let i = 1; i <= 7; i++){
+        this.load.image(`background_wasteland_back_${i}`, `${path}/back/${i}.png`);
+    }
+
+    for (let i = 1; i <= 8; i++){
+        this.load.image(`background_wasteland_front_${i}`, `${path}/front/${i}.png`);
+    }
+
+    /** Forest backgrounds */
+    path = './assets/background/forest';
+
+    for (let i = 1; i <= 7; i++){
+        this.load.image(`background_forest_back_${i}`, `${path}/back/${i}.png`);
+    }
+
+    for (let i = 1; i <= 8; i++){
+        this.load.image(`background_forest_front_${i}`, `${path}/front/${i}.png`);
+    }
+
+    /** City backgrounds */
+    path = './assets/background/city';
+
+    for (let i = 1; i <= 5; i++){
+        this.load.image(`background_city_back_${i}`, `${path}/back/${i}.png`);
+    }
+
+    for (let i = 1; i <= 5; i++){
+        this.load.image(`background_city_front_${i}`, `${path}/front/${i}.png`);
+    }
+
+    /** Show load progress */
     let text = this.make.text({
-        x: CONFIG.width / 2,
-        y: CONFIG.height / 2,
+        x: Config.width / 2,
+        y: Config.height / 2,
         text: '0%',
         style: {
             font: '18px monospace',
-            fill: '#ffffff'
+            fill: Colors.white
         }
     });
     text.setOrigin(0.5, 0.5);
@@ -317,39 +143,24 @@ function preload() {
 }
 
 function create() {
-
-    let worldCenter = CONFIG.width / 2;
-    let worldMiddle = CONFIG.height / 2;
+    let worldCenter = Config.width / 2;
+    let worldMiddle = Config.height / 2;
 
     /** Background */
-    GAME_OBJECTS.backgrounds = new Backgrounds(this, [
-        {
-            texture: 'background_back',
-            velocity: -0.5,
-            scale: true
-        },
-        {
-            texture: 'background_front',
-            velocity: -2
-        },
-        {
-            texture: 'background_ground',
-            velocity: -2
-        }
-    ]);
+    GAME_OBJECTS.backgrounds = new Backgrounds(this);
 
     /** Ground */
     GAME_OBJECTS.ground = new Ground(this, {
         x: worldCenter,
-        y: CONFIG.height - 25,
-        width: CONFIG.width,
-        height: 50
+        y: Config.height - 47,
+        width: Config.width,
+        height: 113
     });
 
     /** Player */
     GAME_OBJECTS.player = new Player(this, {
         x: isMobile() ? worldCenter : worldCenter/2,
-        y: CONFIG.height - 50,
+        y: Config.height - 103,
         textures: {
             top: 'body',
             bottom: 'legs',
@@ -372,60 +183,126 @@ function create() {
     /** Cursors */
     CURSORS = this.input.keyboard.createCursorKeys();
     POINTER = this.input.pointer1;
+    KEYS = {
+        A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+        ESC: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
+    };
 
     /** Counter */
-    PROGRESS = this.time.addEvent({ loop: true });
     COUNTER = this.make.text({
-        x: CONFIG.width,
+        x: Config.width,
         y: 0,
         padding: 20,
         text: '0м',
         style: {
-            font: '32px monospace',
-            fill: '#ffffff'
+            font: '700 32px Montserrat',
+            fill: Colors.hex.white
         }
-    }).setOrigin(1, 0);
+    }).setOrigin(1, 0).setVisible(false);
+
+    this.cameras.main.fadeIn(1000);
 }
 
 function update() {
-    if (!GAME_OBJECTS.player.isStatic) {
+    if (!STATE.stopped) {
 
         /** PLay walking animation */
         GAME_OBJECTS.player.bottom.anims.play('walking', true);
 
         /** Control balance with keyboard */
-        if (CURSORS.right.isDown) {
+        if (CURSORS.right.isDown || KEYS.D.isDown) {
             GAME_OBJECTS.player.top.setVelocity(1.25, 2);
-        } else if (CURSORS.left.isDown) {
+
+            if (!STATE.started) {
+                STATE.started = true;
+                start(this.time);
+            }
+        } else if (CURSORS.left.isDown || KEYS.A.isDown) {
             GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
+
+            if (!STATE.started) {
+                STATE.started = true;
+                start(this.time);
+            }
         }
 
-        /** Control balance with touch and mouse */
+        /** Control balance with touch */
         if (POINTER.isDown) {
-            if (POINTER.worldX < CONFIG.width / 2) {
+            if (POINTER.worldX < Config.width / 2) {
                 GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
-            } else if (POINTER.worldX >= CONFIG.width / 2) {
+            } else if (POINTER.worldX >= Config.width / 2) {
                 GAME_OBJECTS.player.top.setVelocity(1.25, 2);
             }
         }
 
         /** If fall angle is too large, stop game */
         let playerAngle = GAME_OBJECTS.player.top.angle;
-        let isFallAngle = playerAngle > CONFIG.maxPlayerFallAngle || playerAngle < -CONFIG.maxPlayerFallAngle;
+        let isFallAngle = playerAngle > Config.maxPlayerFallAngle || playerAngle < -Config.maxPlayerFallAngle;
 
         if (isFallAngle) {
-            GAME_OBJECTS.player.stop();
-            GAME_OBJECTS.backgrounds.stop();
-            GAME_OBJECTS.player.bottom.anims.stop('walking', true);
+            // GAME_OBJECTS.player.stop();
+            // GAME_OBJECTS.backgrounds.stop();
+            // GAME_OBJECTS.player.bottom.anims.stop('walking');
+
+            this.scene.pause();
+
+            STATE.stopped = true;
         }
 
-        /** Update backgrounds position */
-        GAME_OBJECTS.backgrounds.updatePosition();
-
         /** Update counter */
-        let walkedDistance = PROGRESS.getElapsedSeconds();
-        COUNTER.setText(walkedDistance.toFixed(2) + 'м');
+        if (PROGRESS) {
+            COUNTER.setText(SCORE + 'м');
+        }
     }
+
+    /** Pause game */
+    // if (KEYS.ESC.isDown) {
+    //     pause(!IS_PAUSED);
+    // }
 }
+
+function start(time) {
+    GAME_OBJECTS.player.setStable(false);
+
+    /** Update counter */
+    PROGRESS = time.addEvent({
+        loop: true,
+        delay: 1000,
+        callback: () => {
+            SCORE++;
+        }
+    });
+    COUNTER.setVisible(true);
+
+    /** Update location */
+    LOCATION_PROGRESS = time.addEvent({
+        loop: true,
+        delay: 50 * 1000,
+        callback: () => {
+            LOCATION++;
+
+            if (LOCATION > 2) {
+                LOCATION = 0;
+            }
+
+            GAME_OBJECTS.backgrounds.changeLocation(LOCATION);
+        }
+    });
+}
+
+// let pause = (isPaused) => {
+//     if (isPaused) {
+//         GAME_OBJECTS.player.stop();
+//         GAME_OBJECTS.backgrounds.stop();
+//         GAME_OBJECTS.player.bottom.anims.pause();
+//     } else {
+//         GAME_OBJECTS.player.play();
+//         GAME_OBJECTS.backgrounds.play();
+//         GAME_OBJECTS.player.bottom.anims.resume();
+//     }
+
+//     IS_PAUSED = isPaused;
+// };
 
 export default Main;
