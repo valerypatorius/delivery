@@ -69,7 +69,7 @@ function preload() {
     let path = './assets/player';
 
     this.load.image('body', `${path}/body.png`);
-    this.load.image('rightArm', `.${path}/arm_right.png`);
+    this.load.image('rightArm', `${path}/arm_right.png`);
     this.load.image('leftArm', `${path}/arm_left.png`);
     this.load.image('backpack', `${path}/backpack.png`);
     this.load.spritesheet('legs', `${path}/legs.png`, {
@@ -81,7 +81,7 @@ function preload() {
     path = './assets/background/global';
 
     for (let i = 1; i <= 5; i++){
-        this.load.image(`background_global_landscape_${i}`, `.${path}/landscape/${i}.png`);
+        this.load.image(`background_global_landscape_${i}`, `${path}/landscape/${i}.png`);
     }
 
     this.load.image(`background_global_cords_1`, `${path}/cords/1.png`);
