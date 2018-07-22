@@ -45,7 +45,7 @@ class Main {
             physics: {
                 default: 'matter',
                 matter: {
-                    // debug: true,
+                    debug: true,
                     debugBodyColor: 0xffffff
                 }
             },
@@ -159,7 +159,7 @@ function create() {
 
     /** Player */
     GAME_OBJECTS.player = new Player(this, {
-        x: isMobile() ? worldCenter : worldCenter/2,
+        x: worldCenter,
         y: Config.height - 103,
         textures: {
             top: 'body',
@@ -178,6 +178,12 @@ function create() {
         frames: this.anims.generateFrameNumbers('legs', { start: 0, end: 120 }),
         frameRate: 60,
         repeat: -1
+    });
+
+    this.anims.create({
+        key: 'fall',
+        frames: [ { key: 'legs', frame: 42 } ],
+        frameRate: 60
     });
 
     /** Cursors */
@@ -209,6 +215,7 @@ function update() {
 
         /** PLay walking animation */
         GAME_OBJECTS.player.bottom.anims.play('walking', true);
+        // GAME_OBJECTS.player.bottom.anims.play('fall');
 
         /** Control balance with keyboard */
         if (CURSORS.right.isDown || KEYS.D.isDown) {
@@ -245,9 +252,18 @@ function update() {
             // GAME_OBJECTS.backgrounds.stop();
             // GAME_OBJECTS.player.bottom.anims.stop('walking');
 
-            this.scene.pause();
+            // this.scene.pause();
 
             STATE.stopped = true;
+
+            // GAME_OBJECTS.player.bottom.setDensity(0.001);
+
+            GAME_OBJECTS.player.bottom.anims.play('fall');
+
+            GAME_OBJECTS.player.bottom.setStatic(false);
+
+            // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomLeft);
+            // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomRight);
         }
 
         /** Update counter */

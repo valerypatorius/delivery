@@ -6,6 +6,8 @@ class Player {
         this.game = game;
         this.matter = this.game.matter;
 
+        this.params = params;
+
         this.isStatic = false;
         this.constraints = {};
 
@@ -32,7 +34,8 @@ class Player {
             collisionFilter: {
                 category: CollisionCategories.rightHand,
                 mask: null
-            }
+            },
+            chamfer: { radius: [35, 35, 0, 0] }
         });
 
         this.backpack = this.matter.add.image(params.x, params.y - this.sizes.bottom.height - 40, params.textures.backpack, null, {
@@ -40,7 +43,8 @@ class Player {
             collisionFilter: {
                 category: CollisionCategories.backpack,
                 mask: null
-            }
+            },
+            chamfer: { radius: [50, 80, 80, 0] }
         });
 
         this.bottom = this.matter.add.sprite(params.x, params.y - this.sizes.bottom.height / 2, params.textures.bottom, 0, {
@@ -48,14 +52,19 @@ class Player {
             collisionFilter: {
                 category: CollisionCategories.player,
                 mask: CollisionCategories.default
-            }
+            },
+            chamfer: { radius: 80 },
+            isStatic: true
         });
 
         this.top = this.matter.add.image(this.bottom.x - 10, this.bottom.y - 130, params.textures.top, null, {
             density: 0.001,
             collisionFilter: {
+                category: CollisionCategories.player,
                 mask: CollisionCategories.default
-            }
+            },
+            chamfer: { radius: 35 },
+            isStatic: true
         });
 
         this.leftHand = this.matter.add.image(params.x - this.sizes.top.width / 2 - 4, params.y - this.sizes.bottom.height + 42, params.textures.hands.left, null, {
@@ -63,12 +72,13 @@ class Player {
             collisionFilter: {
                 category: CollisionCategories.leftHand,
                 mask: null
-            }
+            },
+            chamfer: { radius: [35, 35, 0, 0] }
         });
 
         this.addConstraints();
 
-        this.setStable(true);
+        // this.setStable(true);
     }
 
     addConstraints() {
@@ -127,27 +137,27 @@ class Player {
             }
         });
 
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: -this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
+        // this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        //     pointA: {
+        //         x: this.sizes.bottom.width / 2,
+        //         y: this.sizes.bottom.height / 2
+        //     },
+        //     pointB: {
+        //         x: -this.sizes.top.width / 2,
+        //         y: -this.sizes.top.height / 2
+        //     }
+        // });
 
-        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: -this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
+        // this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        //     pointA: {
+        //         x: -this.sizes.bottom.width / 2,
+        //         y: this.sizes.bottom.height / 2
+        //     },
+        //     pointB: {
+        //         x: this.sizes.top.width / 2,
+        //         y: -this.sizes.top.height / 2
+        //     }
+        // });
     }
 
     setStable(isStable = true) {

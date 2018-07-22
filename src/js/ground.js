@@ -9,6 +9,7 @@ class Ground {
         this.ground = this.matter.add.rectangle(params.x, params.y, params.width, params.height, {
             isStatic: true,
             collisionFilter: {
+                category: CollisionCategories.default,
                 mask: CollisionCategories.player
             }
         });

@@ -174,7 +174,7 @@ class Backgrounds {
             grass: [],
             back: [],
             front: []
-        }
+        };
 
         this.main = this.game.add.image(0, 0, 'pixel').setOrigin(0, 0).setScale(Config.width, Config.height).setDepth(-6);
         this.main.setTint(Colors.default.main[0], Colors.default.main[1], Colors.default.main[2], Colors.default.main[3]);
