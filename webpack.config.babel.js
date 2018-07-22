@@ -31,7 +31,7 @@ if (isProduction) {
             server: {
                 baseDir: './'
             },
-            https: true,
+            // https: true,
             ghostMode: false,
             notify: false,
             scrollProportionally: false,

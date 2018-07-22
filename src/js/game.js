@@ -2,40 +2,51 @@ import '../css/game.styl';
 
 import Phaser from 'phaser';
 
-const WIDTH = 960;
-const HEIGHT = 600;
+import Config from './config';
+import Colors from './colors';
+import CollisionCategories from './collisionCategories';
 
-const MATTER = Phaser.Physics.Matter.Matter;
+import Player from './player';
+import Ground from './ground';
+import Backgrounds from './backgrounds';
 
-const COLLISION_CATEGORIES = {
-    default: 0x0001,
-    body: 0x0002,
-    backgrounds: [
-        0x0004,
-        0x0008,
-        0x0016
-    ]
+import { isMobile } from './lib/check';
+
+let GAME_OBJECTS = {
+    backgrounds: null,
+    ground: null,
+    player: null
 };
 
-const WORLD_X = 1;
-const MAX_FALL_ANGLE = 75;
+let COUNTER = null;
+let CURSORS = null;
+let KEYS = null;
+let POINTER = null;
 
-let backgrounds;
-let ground;
-let player;
-let cursors;
+let LOCATION = 0;
+let LOCATION_PROGRESS = 0;
 
-class Game {
+let PROGRESS = null;
+let SCORE = 0;
+
+let STATE = {
+    started: false,
+    paused: false,
+    stopped: false
+};
+
+class Main {
     constructor() {
         this.config = {
             type: Phaser.AUTO,
-            width: WIDTH,
-            height: HEIGHT,
+            width: Config.width,
+            height: Config.height,
+            // resolution: 0.5,
             physics: {
                 default: 'matter',
                 matter: {
-                    // debug: true,
-                    // debugBodyColor: 0xffffff
+                    debug: true,
+                    debugBodyColor: 0xffffff
                 }
             },
             scene: {
@@ -48,232 +59,76 @@ class Game {
     }
 }
 
-class Player {
-    constructor(game, x, y) {
-        this.game = game;
-        this.matter = this.game.matter;
-
-        this.isStatic = false;
-        this.constraints = {};
-        this.distanceX = 0;
-
-        this.sizes = {
-            top: {
-                width: 100,
-                height: 200
-            },
-            bottom: {
-                width: 100,
-                height: 120
-            },
-            axisoffset: 40,
-            springLength: 210
-        };
-
-        // this.top = MATTER.Bodies.rectangle(x, y - this.sizes.top.height / 2, this.sizes.top.width, this.sizes.top.height, {
-        //     collisionFilter: {
-        //         mask: COLLISION_CATEGORIES.default
-        //     }
-        // });
-
-        this.top = this.matter.add.image(x, y - this.sizes.top.height / 2, 'body_top', null, {
-            density: 0.0005,
-            collisionFilter: {
-                mask: COLLISION_CATEGORIES.default
-            }
-        });
-
-        // this.bottom = MATTER.Bodies.rectangle(x, y, this.sizes.bottom.width, this.sizes.bottom.height, {
-        //     density: 10,
-        //     collisionFilter: {
-        //         category: COLLISION_CATEGORIES.body,
-        //         mask: COLLISION_CATEGORIES.default
-        //     }
-        // });
-
-        this.bottom = this.matter.add.image(x, y, 'body_bottom', null, {
-            density: 10,
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.body,
-                mask: COLLISION_CATEGORIES.default
-            }
-        });
-
-        this.connectBodyParts();
-    }
-
-    connectBodyParts() {
-        // this.constraints.topBottom = MATTER.Constraint.create({
-        //     bodyA: this.bottom,
-        //     pointA: {
-        //         x: 0,
-        //         y: -this.sizes.axisoffset
-        //     },
-        //     bodyB: this.top,
-        //     pointB: {
-        //         x: 0,
-        //         y: this.sizes.axisoffset
-        //     },
-        //     length: 0,
-        //     stiffness: 0
-        // });
-        // this.matter.world.add(this.constraints.topBottom);
-
-        this.constraints.topBottom = this.matter.add.constraint(this.bottom, this.top, 0, 0, {
-            pointA: {
-                x: 0,
-                y: -this.sizes.axisoffset
-            },
-            pointB: {
-                x: 0,
-                y: this.sizes.axisoffset
-            }
-        });
-
-        // this.constraints.bottomLeft = MATTER.Constraint.create({
-        //     bodyA: this.bottom,
-        //     pointA: {
-        //         x: this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     bodyB: this.top,
-        //     pointB: {
-        //         x: -this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     },
-        //     length: this.sizes.springLength,
-        //     stiffness: 0.001
-        // });
-
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: -this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
-
-        // this.constraints.bottomRight = MATTER.Constraint.create({
-        //     bodyA: this.bottom,
-        //     pointA: {
-        //         x: -this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     bodyB: this.top,
-        //     pointB: {
-        //         x: this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     },
-        //     length: this.sizes.springLength,
-        //     stiffness: 0.001
-        // });
-
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: -this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
-
-        // this.body = MATTER.Composite.create({
-        //     bodies: [this.top, this.bottom],
-        //     constraints: [this.constraints.topBottom, this.constraints.bottomLeft, this.constraints.bottomRight]
-        // });
-
-        // this.matter.world.add(this.body);
-    }
-
-    stop() {
-        // MATTER.Body.setStatic(this.top, true);
-        // MATTER.Body.setStatic(this.bottom, true);
-        this.top.setStatic(true);
-        this.bottom.setStatic(true);
-        this.isStatic = true;
-    }
-
-    play() {
-        // MATTER.Body.setStatic(this.top, false);
-        // MATTER.Body.setStatic(this.bottom, false);
-        this.top.setStatic(false);
-        this.bottom.setStatic(false);
-        this.isStatic = false;
-    }
-}
-
-class Ground {
-    constructor(game, x, y) {
-        this.game = game;
-        this.matter = this.game.matter;
-
-        this.ground = MATTER.Bodies.rectangle(x, y, WIDTH * WORLD_X, 90, {
-            isStatic: true,
-            collisionFilter: {
-                mask: COLLISION_CATEGORIES.body
-            },
-        });
-        this.matter.world.add(this.ground);
-    }
-}
-
-class Backgrounds {
-    constructor(game, list) {
-        this.game = game;
-        this.matter = this.game.matter;
-
-        this.backgrounds = list;
-
-        this.backgrounds.forEach((item, index) => {
-            this.create(item);
-        });
-    }
-
-    create(item, index) {
-        item.instance = this.matter.add.image(item.x, item.y, item.texture, null, {
-            collisionFilter: {
-                category: COLLISION_CATEGORIES.backgrounds[index]
-            }
-        }).setIgnoreGravity(true).setOrigin(0, 0);
-    }
-
-    updatePosition() {
-        this.backgrounds.forEach(item => {
-            item.instance.setVelocityX(item.velocity);
-
-            if (item.instance.x < -Math.abs(item.x + WIDTH*2)) {
-                item.instance.setPosition(item.x, item.y);
-            }
-        });
-    }
-
-    stop() {
-        this.backgrounds.forEach(item => {
-            item.instance.setStatic(true);
-        });
-    }
-}
-
+/**
+ * Load assets, while showing progress bar
+ */
 function preload() {
-    this.load.image('background_back', './assets/background_back.png');
-    this.load.image('background_front', './assets/background_front.png');
-    this.load.image('background_ground', './assets/background_ground.png');
+    this.load.image('pixel', './assets/pixel.png');
 
-    this.load.image('body_top', './assets/body_top.png');
-    this.load.image('body_bottom', './assets/body_bottom.png');
+    /** Player body parts */
+    let path = './assets/player';
 
+    this.load.image('body', `${path}/body.png`);
+    this.load.image('rightArm', `${path}/arm_right.png`);
+    this.load.image('leftArm', `${path}/arm_left.png`);
+    this.load.image('backpack', `${path}/backpack.png`);
+    this.load.spritesheet('legs', `${path}/legs.png`, {
+        frameWidth: 159,
+        frameHeight: 184
+    });
+
+    /** Global backgrounds */
+    path = './assets/background/global';
+
+    for (let i = 1; i <= 5; i++){
+        this.load.image(`background_global_landscape_${i}`, `${path}/landscape/${i}.png`);
+    }
+
+    this.load.image(`background_global_cords_1`, `${path}/cords/1.png`);
+    this.load.image(`background_global_ground_1`, `${path}/ground/1.png`);
+    this.load.image(`background_global_grass_1`, `${path}/grass/1.png`);
+
+    /** Wasteland backgrounds */
+    path = './assets/background/wasteland';
+
+    for (let i = 1; i <= 7; i++){
+        this.load.image(`background_wasteland_back_${i}`, `${path}/back/${i}.png`);
+    }
+
+    for (let i = 1; i <= 8; i++){
+        this.load.image(`background_wasteland_front_${i}`, `${path}/front/${i}.png`);
+    }
+
+    /** Forest backgrounds */
+    path = './assets/background/forest';
+
+    for (let i = 1; i <= 7; i++){
+        this.load.image(`background_forest_back_${i}`, `${path}/back/${i}.png`);
+    }
+
+    for (let i = 1; i <= 8; i++){
+        this.load.image(`background_forest_front_${i}`, `${path}/front/${i}.png`);
+    }
+
+    /** City backgrounds */
+    path = './assets/background/city';
+
+    for (let i = 1; i <= 5; i++){
+        this.load.image(`background_city_back_${i}`, `${path}/back/${i}.png`);
+    }
+
+    for (let i = 1; i <= 5; i++){
+        this.load.image(`background_city_front_${i}`, `${path}/front/${i}.png`);
+    }
+
+    /** Show load progress */
     let text = this.make.text({
-        x: WIDTH / 2,
-        y: HEIGHT / 2,
+        x: Config.width / 2,
+        y: Config.height / 2,
         text: '0%',
         style: {
             font: '18px monospace',
-            fill: '#ffffff'
+            fill: Colors.white
         }
     });
     text.setOrigin(0.5, 0.5);
@@ -288,77 +143,182 @@ function preload() {
 }
 
 function create() {
-
-    let worldCenter = (WIDTH * WORLD_X) / 2;
-    let worldMiddle = HEIGHT / 2;
-
-    /** World bounds */
-    // this.matter.world.setBounds(0, 0, WIDTH * WORLD_X, HEIGHT);
+    let worldCenter = Config.width / 2;
+    let worldMiddle = Config.height / 2;
 
     /** Background */
-    backgrounds = new Backgrounds(this, [
-        {
-            x: 0,
-            y: 0,
-            texture: 'background_back',
-            velocity: -0.5
-        },
-        {
-            x: 0,
-            y: 0,
-            texture: 'background_front',
-            velocity: -1
-        },
-        {
-            x: 0,
-            y: 0,
-            texture: 'background_ground',
-            velocity: -2
-        }
-    ]);
+    GAME_OBJECTS.backgrounds = new Backgrounds(this);
 
     /** Ground */
-    ground = new Ground(this, worldCenter, HEIGHT - 40);
+    GAME_OBJECTS.ground = new Ground(this, {
+        x: worldCenter,
+        y: Config.height - 47,
+        width: Config.width,
+        height: 113
+    });
 
     /** Player */
-    player = new Player(this, worldCenter/2, HEIGHT - 160);
+    GAME_OBJECTS.player = new Player(this, {
+        x: worldCenter,
+        y: Config.height - 103,
+        textures: {
+            top: 'body',
+            bottom: 'legs',
+            hands: {
+                left: 'leftArm',
+                right: 'rightArm'
+            },
+            backpack: 'backpack'
+        }
+    });
+
+    /** Prepare walking animation */
+    this.anims.create({
+        key: 'walking',
+        frames: this.anims.generateFrameNumbers('legs', { start: 0, end: 120 }),
+        frameRate: 60,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'fall',
+        frames: [ { key: 'legs', frame: 42 } ],
+        frameRate: 60
+    });
 
     /** Cursors */
-    cursors = this.input.keyboard.createCursorKeys();
+    CURSORS = this.input.keyboard.createCursorKeys();
+    POINTER = this.input.pointer1;
+    KEYS = {
+        A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+        ESC: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
+    };
+
+    /** Counter */
+    COUNTER = this.make.text({
+        x: Config.width,
+        y: 0,
+        padding: 20,
+        text: '0м',
+        style: {
+            font: '700 32px Montserrat',
+            fill: Colors.hex.white
+        }
+    }).setOrigin(1, 0).setVisible(false);
+
+    this.cameras.main.fadeIn(1000);
 }
 
 function update() {
+    if (!STATE.stopped) {
 
-    if (!player.isStatic) {
+        /** PLay walking animation */
+        GAME_OBJECTS.player.bottom.anims.play('walking', true);
+        // GAME_OBJECTS.player.bottom.anims.play('fall');
 
-        /** Control balance */
-        if (cursors.right.isDown) {
-            // if (!player.isStatic) MATTER.Body.setVelocity(player.top, {
-            //     x: 2,
-            //     y: 0
-            // });
+        /** Control balance with keyboard */
+        if (CURSORS.right.isDown || KEYS.D.isDown) {
+            GAME_OBJECTS.player.top.setVelocity(1.25, 2);
 
-            player.top.setVelocityX(2);
+            if (!STATE.started) {
+                STATE.started = true;
+                start(this.time);
+            }
+        } else if (CURSORS.left.isDown || KEYS.A.isDown) {
+            GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
 
-        } else if (cursors.left.isDown) {
-            // if (!player.isStatic) MATTER.Body.setVelocity(player.top, {
-            //     x: -2,
-            //     y: 0
-            // });
-
-            player.top.setVelocityX(-2);
+            if (!STATE.started) {
+                STATE.started = true;
+                start(this.time);
+            }
         }
 
-        /** If angle is too large */
-        if (player.top.angle > MAX_FALL_ANGLE) {
-            player.stop();
-        } else if (player.top.angle < -MAX_FALL_ANGLE) {
-            player.stop();
-        } else {}
+        /** Control balance with touch */
+        if (POINTER.isDown) {
+            if (POINTER.worldX < Config.width / 2) {
+                GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
+            } else if (POINTER.worldX >= Config.width / 2) {
+                GAME_OBJECTS.player.top.setVelocity(1.25, 2);
+            }
+        }
+
+        /** If fall angle is too large, stop game */
+        let playerAngle = GAME_OBJECTS.player.top.angle;
+        let isFallAngle = playerAngle > Config.maxPlayerFallAngle || playerAngle < -Config.maxPlayerFallAngle;
+
+        if (isFallAngle) {
+            // GAME_OBJECTS.player.stop();
+            // GAME_OBJECTS.backgrounds.stop();
+            // GAME_OBJECTS.player.bottom.anims.stop('walking');
+
+            // this.scene.pause();
+
+            STATE.stopped = true;
+
+            // GAME_OBJECTS.player.bottom.setDensity(0.001);
+
+            GAME_OBJECTS.player.bottom.anims.play('fall');
+
+            GAME_OBJECTS.player.bottom.setStatic(false);
+
+            // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomLeft);
+            // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomRight);
+        }
+
+        /** Update counter */
+        if (PROGRESS) {
+            COUNTER.setText(SCORE + 'м');
+        }
     }
 
-    backgrounds.updatePosition();
-
+    /** Pause game */
+    // if (KEYS.ESC.isDown) {
+    //     pause(!IS_PAUSED);
+    // }
 }
 
-export default Game;
+function start(time) {
+    GAME_OBJECTS.player.setStable(false);
+
+    /** Update counter */
+    PROGRESS = time.addEvent({
+        loop: true,
+        delay: 1000,
+        callback: () => {
+            SCORE++;
+        }
+    });
+    COUNTER.setVisible(true);
+
+    /** Update location */
+    LOCATION_PROGRESS = time.addEvent({
+        loop: true,
+        delay: 50 * 1000,
+        callback: () => {
+            LOCATION++;
+
+            if (LOCATION > 2) {
+                LOCATION = 0;
+            }
+
+            GAME_OBJECTS.backgrounds.changeLocation(LOCATION);
+        }
+    });
+}
+
+// let pause = (isPaused) => {
+//     if (isPaused) {
+//         GAME_OBJECTS.player.stop();
+//         GAME_OBJECTS.backgrounds.stop();
+//         GAME_OBJECTS.player.bottom.anims.pause();
+//     } else {
+//         GAME_OBJECTS.player.play();
+//         GAME_OBJECTS.backgrounds.play();
+//         GAME_OBJECTS.player.bottom.anims.resume();
+//     }
+
+//     IS_PAUSED = isPaused;
+// };
+
+export default Main;

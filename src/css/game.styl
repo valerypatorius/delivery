@@ -1,13 +1,10 @@
 @import 'mq'
 @import 'functions'
-@import 'keyframes'
+// @import 'keyframes'
 
 $colors = {
     white: #ffffff,
     black: #000000,
-    gray: #BFBFBF,
-    blue: #3A539B,
-    yellow: #F4D03F
 }
 
 html
@@ -15,10 +12,10 @@ html
 
 body
     min-height: 100%
-    background-color: #222
-    color: #222
+    background-color: $colors.black
+    color: $colors.white
     margin: 0
-    font: 18px/1.6em 'Roboto', sans-serif
+    font: 18px/1.6em 'Montserrat', sans-serif
     display: flex
     flex-direction: column
     justify-content: center
