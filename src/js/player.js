@@ -17,7 +17,7 @@ class Player {
                 height: 139
             },
             bottom: {
-                width: 159,
+                width: 60,
                 height: 184
             },
             hand: {
@@ -29,7 +29,7 @@ class Player {
             springLength: 250
         };
 
-        this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
+        this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2 + 5, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
             density: 0.0001,
             collisionFilter: {
                 category: CollisionCategories.rightHand,
@@ -44,17 +44,31 @@ class Player {
                 category: CollisionCategories.backpack,
                 mask: null
             },
-            chamfer: { radius: [50, 80, 80, 0] }
         });
 
-        this.bottom = this.matter.add.sprite(params.x, params.y - this.sizes.bottom.height / 2, params.textures.bottom, 0, {
-            density: 10,
+        this.flashlight = this.matter.add.sprite(params.x + 68, params.y - this.sizes.bottom.height - 83, params.textures.flashlight, 0, {
+            density: 0.00005,
+            collisionFilter: {
+                category: CollisionCategories.backpack,
+                mask: null
+            }
+        });
+
+        this.bottom = this.matter.add.image(params.x, params.y - this.sizes.bottom.height / 2, params.textures.phantomLegs, null, {
+            density: 100,
             collisionFilter: {
                 category: CollisionCategories.player,
                 mask: CollisionCategories.default
             },
-            chamfer: { radius: 80 },
-            isStatic: true
+            chamfer: { radius: 30 },
+        }).setIgnoreGravity(true);
+
+        this.legs = this.matter.add.sprite(params.x, params.y - this.sizes.bottom.height / 2, params.textures.bottom, 0, {
+            density: 0.0001,
+            collisionFilter: {
+                category: CollisionCategories.legs,
+                mask: null
+            }
         });
 
         this.top = this.matter.add.image(this.bottom.x - 10, this.bottom.y - 130, params.textures.top, null, {
@@ -63,7 +77,7 @@ class Player {
                 category: CollisionCategories.player,
                 mask: CollisionCategories.default
             },
-            chamfer: { radius: 35 },
+            // chamfer: { radius: 35 },
             isStatic: true
         });
 
@@ -75,6 +89,10 @@ class Player {
             },
             chamfer: { radius: [35, 35, 0, 0] }
         });
+
+        this.bodyParts = [
+            this.rightHand, this.backpack, this.bottom, this.legs, this.top, this.leftHand
+        ];
 
         this.addConstraints();
 
@@ -95,11 +113,11 @@ class Player {
 
         this.constraints.rightHand = this.matter.add.constraint(this.top, this.rightHand, 0, 0, {
             pointA: {
-                x: this.sizes.top.width/2 - 5,
+                x: this.sizes.top.width/2,
                 y: -this.sizes.top.height/2 + 52
             },
             pointB: {
-                x: -10,
+                x: -5,
                 y: -this.sizes.hand.height/2 + 5
             }
         });
@@ -117,6 +135,50 @@ class Player {
 
         this.constraints.backpackTop = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
             pointA: {
+                x: -28,
+                y: 23
+            },
+            pointB: {
+                x: 0,
+                y: 0
+            }
+        });
+
+        this.constraints.backpackBottom = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
+            pointA: {
+                x: -28,
+                y: 43
+            },
+            pointB: {
+                x: 0,
+                y: 20
+            }
+        });
+
+        this.constraints.flashLightTop = this.matter.add.constraint(this.top, this.flashlight, 0, 0, {
+            pointA: {
+                x: 28,
+                y: -45
+            },
+            pointB: {
+                x: -50,
+                y: 0
+            }
+        });
+
+        this.constraints.flashLightBottom = this.matter.add.constraint(this.top, this.flashlight, 0, 0, {
+            pointA: {
+                x: 28,
+                y: -25
+            },
+            pointB: {
+                x: -50,
+                y: 20
+            }
+        });
+
+        this.constraints.legsTop = this.matter.add.constraint(this.bottom, this.legs, 0, 0, {
+            pointA: {
                 x: 0,
                 y: 0
             },
@@ -126,7 +188,7 @@ class Player {
             }
         });
 
-        this.constraints.backpackBottom = this.matter.add.constraint(this.top, this.backpack, 0, 0, {
+        this.constraints.legsBottom = this.matter.add.constraint(this.bottom, this.legs, 0, 0, {
             pointA: {
                 x: 0,
                 y: 50
@@ -137,27 +199,53 @@ class Player {
             }
         });
 
-        // this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-        //     pointA: {
-        //         x: this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     pointB: {
-        //         x: -this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     }
-        // });
+        this.constraints.worldBottom = this.matter.add.worldConstraint(this.bottom, 0, 0, {
+            pointA: {
+                x: this.params.x,
+                y: this.params.y - this.sizes.bottom.height / 2 + 60
+            },
+            pointB: {
+                x: 0,
+                y: 60
+            }
+        });
 
-        // this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-        //     pointA: {
-        //         x: -this.sizes.bottom.width / 2,
-        //         y: this.sizes.bottom.height / 2
-        //     },
-        //     pointB: {
-        //         x: this.sizes.top.width / 2,
-        //         y: -this.sizes.top.height / 2
-        //     }
-        // });
+        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+            pointA: {
+                x: this.sizes.bottom.width / 2,
+                y: this.sizes.bottom.height / 2
+            },
+            pointB: {
+                x: -this.sizes.top.width / 2,
+                y: -this.sizes.top.height / 2
+            }
+        });
+
+        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+            pointA: {
+                x: -this.sizes.bottom.width / 2,
+                y: this.sizes.bottom.height / 2
+            },
+            pointB: {
+                x: this.sizes.top.width / 2,
+                y: -this.sizes.top.height / 2
+            }
+        });
+    }
+
+    addFallConstraint(sign) {
+        let length = sign > 0 ? 130 : 130;
+
+        this.constraints.topBottomFall = this.matter.add.constraint(this.bottom, this.top, length, 0.01, {
+            pointA: {
+                x: 0,
+                y: 0
+            },
+            pointB: {
+                x: 0,
+                y: 0
+            }
+        });
     }
 
     setStable(isStable = true) {
@@ -165,20 +253,12 @@ class Player {
     }
 
     stop() {
-        this.top.setStatic(true);
-        this.bottom.setStatic(true);
-        this.leftHand.setStatic(true);
-        this.rightHand.setStatic(true);
-        this.backpack.setStatic(true);
+        this.bodyParts.forEach(part => part.setStatic(true));
         this.isStatic = true;
     }
 
     play() {
-        this.top.setStatic(false);
-        this.bottom.setStatic(false);
-        this.leftHand.setStatic(false);
-        this.rightHand.setStatic(false);
-        this.backpack.setStatic(false);
+        this.bodyParts.forEach(part => part.setStatic(false));
         this.isStatic = false;
     }
 }

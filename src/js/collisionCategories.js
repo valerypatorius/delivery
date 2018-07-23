@@ -3,5 +3,6 @@ export default {
     player: 0x0002,
     rightHand: 0x0004,
     leftHand: 0x0008,
-    backpack: 0x0016
+    backpack: 0x0016,
+    legs: 0x0032
 };

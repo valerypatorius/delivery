@@ -57,7 +57,7 @@ class Backgrounds {
                     offsetBetween: 0,
                     offsetBottom: 0,
                     duration: 50,
-                    depth: -1,
+                    depth: 1,
                     isActive: true
                 }
             },

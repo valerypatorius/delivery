@@ -11,11 +11,13 @@ import Ground from './ground';
 import Backgrounds from './backgrounds';
 
 import { isMobile } from './lib/check';
+import Death from './death';
 
 let GAME_OBJECTS = {
     backgrounds: null,
     ground: null,
-    player: null
+    player: null,
+    death: null
 };
 
 let COUNTER = null;
@@ -45,7 +47,11 @@ class Main {
             physics: {
                 default: 'matter',
                 matter: {
-                    debug: true,
+                    gravity: {
+                        x: 0,
+                        y: 3
+                    },
+                    // debug: true,
                     debugBodyColor: 0xffffff
                 }
             },
@@ -72,9 +78,20 @@ function preload() {
     this.load.image('rightArm', `${path}/arm_right.png`);
     this.load.image('leftArm', `${path}/arm_left.png`);
     this.load.image('backpack', `${path}/backpack.png`);
+    this.load.image('phantomLegs', `${path}/legs_phantom.png`);
     this.load.spritesheet('legs', `${path}/legs.png`, {
         frameWidth: 159,
         frameHeight: 184
+    });
+    this.load.spritesheet('flashlight', `${path}/flashlight.png`, {
+        frameWidth: 125,
+        frameHeight: 95
+    });
+
+    /** Death */
+    this.load.spritesheet('death', `./assets/death.png`, {
+        frameWidth: 355,
+        frameHeight: 110
     });
 
     /** Global backgrounds */
@@ -130,8 +147,7 @@ function preload() {
             font: '18px monospace',
             fill: Colors.white
         }
-    });
-    text.setOrigin(0.5, 0.5);
+    }).setOrigin(0.5, 0.5);
 
     this.load.on('progress', value => {
         text.setText(parseInt(value * 100) + '%');
@@ -160,7 +176,7 @@ function create() {
     /** Player */
     GAME_OBJECTS.player = new Player(this, {
         x: worldCenter,
-        y: Config.height - 103,
+        y: Config.height - 104,
         textures: {
             top: 'body',
             bottom: 'legs',
@@ -168,7 +184,9 @@ function create() {
                 left: 'leftArm',
                 right: 'rightArm'
             },
-            backpack: 'backpack'
+            backpack: 'backpack',
+            phantomLegs: 'phantomLegs',
+            flashlight: 'flashlight'
         }
     });
 
@@ -184,6 +202,20 @@ function create() {
         key: 'fall',
         frames: [ { key: 'legs', frame: 42 } ],
         frameRate: 60
+    });
+
+    this.anims.create({
+        key: 'flashlight',
+        frames: this.anims.generateFrameNumbers('flashlight', { start: 0, end: 30 }),
+        frameRate: 60,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'death',
+        frames: this.anims.generateFrameNumbers('death', { start: 0, end: 156 }),
+        frameRate: 60,
+        // repeat: -1
     });
 
     /** Cursors */
@@ -211,11 +243,14 @@ function create() {
 }
 
 function update() {
+    let worldCenter = Config.width / 2;
+    let worldMiddle = Config.height / 2;
+
     if (!STATE.stopped) {
 
         /** PLay walking animation */
-        GAME_OBJECTS.player.bottom.anims.play('walking', true);
-        // GAME_OBJECTS.player.bottom.anims.play('fall');
+        GAME_OBJECTS.player.legs.anims.play('walking', true);
+        GAME_OBJECTS.player.flashlight.anims.play('flashlight', true);
 
         /** Control balance with keyboard */
         if (CURSORS.right.isDown || KEYS.D.isDown) {
@@ -226,7 +261,7 @@ function update() {
                 start(this.time);
             }
         } else if (CURSORS.left.isDown || KEYS.A.isDown) {
-            GAME_OBJECTS.player.top.setVelocity(-1.25, -2);
+            GAME_OBJECTS.player.top.setVelocity(-1, -0.5);
 
             if (!STATE.started) {
                 STATE.started = true;
@@ -245,22 +280,89 @@ function update() {
 
         /** If fall angle is too large, stop game */
         let playerAngle = GAME_OBJECTS.player.top.angle;
-        let isFallAngle = playerAngle > Config.maxPlayerFallAngle || playerAngle < -Config.maxPlayerFallAngle;
+        let isFallAngle = 0;
 
-        if (isFallAngle) {
-            // GAME_OBJECTS.player.stop();
-            // GAME_OBJECTS.backgrounds.stop();
-            // GAME_OBJECTS.player.bottom.anims.stop('walking');
+        if (playerAngle > Config.maxPlayerFallAngle) {
+            isFallAngle = 1;
+        } else if (playerAngle < -Config.maxPlayerFallAngle) {
+            isFallAngle = -1;
+        }
 
-            // this.scene.pause();
-
+        if (isFallAngle !== 0) {
             STATE.stopped = true;
 
-            // GAME_OBJECTS.player.bottom.setDensity(0.001);
+            GAME_OBJECTS.player.legs.anims.stop('walking');
+            GAME_OBJECTS.player.flashlight.anims.stop('flashlight');
 
-            GAME_OBJECTS.player.bottom.anims.play('fall');
+            GAME_OBJECTS.player.bottom.setIgnoreGravity(false);
 
-            GAME_OBJECTS.player.bottom.setStatic(false);
+            GAME_OBJECTS.player.top.setDensity(100);
+            GAME_OBJECTS.player.bottom.setDensity(100);
+
+            GAME_OBJECTS.player.top.setFriction(1);
+            GAME_OBJECTS.player.bottom.setFriction(1);
+
+            GAME_OBJECTS.player.rightHand.setFrictionAir(1);
+            GAME_OBJECTS.player.leftHand.setFrictionAir(1);
+
+            GAME_OBJECTS.player.addFallConstraint(isFallAngle);
+
+            setTimeout(() => {
+                GAME_OBJECTS.player.stop();
+
+                this.tweens.pauseAll();
+
+                GAME_OBJECTS.death = new Death(this, {
+                    x: worldCenter + 110 * isFallAngle,
+                    y: Config.height - 90,
+                    texture: 'death'
+                })
+
+                GAME_OBJECTS.death.instance.anims.play('death');
+
+                this.tweens.add({
+                    targets: GAME_OBJECTS.player.bodyParts,
+                    y: '+=300',
+                    duration: 1500,
+                    delay: 1300,
+                    onComplete: () => {
+                        this.make.text({
+                            x: worldCenter,
+                            y: worldMiddle,
+                            text: 'YOU DIED',
+                            style: {
+                                font: '700 72px Montserrat',
+                                fill: Colors.hex.white
+                            }
+                        }).setOrigin(0.5, 0.5);
+
+                        this.scene.pause();
+                    }
+                });
+            }, 800);
+
+            // GAME_OBJECTS.player.bottom.setAngle(60 * isFallAngle);
+
+            // GAME_OBJECTS.player.top.setStatic(true);
+            // GAME_OBJECTS.player.bottom.setStatic(true);
+
+            // GAME_OBJECTS.player.top.setCollidesWith(null);
+            // GAME_OBJECTS.player.bottom.setCollidesWith(null);
+
+            // this.tweens.add({
+            //     targets: [GAME_OBJECTS.player.bottom, GAME_OBJECTS.player.top],
+            //     y: '+=500',
+            //     duration: 1000,
+            //     onComplete: () => {
+
+            //     }
+            // });
+
+            // GAME_OBJECTS.player.top.setCollidesWith(null);
+            // GAME_OBJECTS.player.bottom.setCollidesWith(null);
+
+            // GAME_OBJECTS.backgrounds.groups.global.ground.instance.setDepth(10);
+            // GAME_OBJECTS.backgrounds.groups.global.ground.depth = 10;
 
             // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomLeft);
             // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomRight);
