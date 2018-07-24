@@ -77,7 +77,7 @@ class Player {
                 category: CollisionCategories.player,
                 mask: CollisionCategories.default
             },
-            // chamfer: { radius: 35 },
+            chamfer: { radius: 30 },
             isStatic: true
         });
 
@@ -180,6 +180,17 @@ class Player {
         this.constraints.legsTop = this.matter.add.constraint(this.bottom, this.legs, 0, 0, {
             pointA: {
                 x: 0,
+                y: -50
+            },
+            pointB: {
+                x: 0,
+                y: -50
+            }
+        });
+
+        this.constraints.legsMiddle = this.matter.add.constraint(this.bottom, this.legs, 0, 0, {
+            pointA: {
+                x: 0,
                 y: 0
             },
             pointB: {
@@ -234,7 +245,7 @@ class Player {
     }
 
     addFallConstraint(sign) {
-        let length = sign > 0 ? 130 : 130;
+        let length = sign > 0 ? 130 : 150;
 
         this.constraints.topBottomFall = this.matter.add.constraint(this.bottom, this.top, length, 0.01, {
             pointA: {

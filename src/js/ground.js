@@ -6,7 +6,7 @@ class Ground {
         this.game = game;
         this.matter = this.game.matter;
 
-        this.ground = this.matter.add.rectangle(params.x, params.y, params.width, params.height, {
+        this.instance = this.matter.add.rectangle(params.x, params.y, params.width, params.height, {
             isStatic: true,
             collisionFilter: {
                 category: CollisionCategories.default,

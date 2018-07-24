@@ -144,8 +144,8 @@ function preload() {
         y: Config.height / 2,
         text: '0%',
         style: {
-            font: '18px monospace',
-            fill: Colors.white
+            font: '700 18px Montserrat',
+            fill: Colors.hex.white
         }
     }).setOrigin(0.5, 0.5);
 
@@ -278,7 +278,7 @@ function update() {
             }
         }
 
-        /** If fall angle is too large, stop game */
+        /** If fall angle is too large, drop player and end the game */
         let playerAngle = GAME_OBJECTS.player.top.angle;
         let isFallAngle = 0;
 
@@ -297,7 +297,7 @@ function update() {
             GAME_OBJECTS.player.bottom.setIgnoreGravity(false);
 
             GAME_OBJECTS.player.top.setDensity(100);
-            GAME_OBJECTS.player.bottom.setDensity(100);
+            GAME_OBJECTS.player.bottom.setDensity(350);
 
             GAME_OBJECTS.player.top.setFriction(1);
             GAME_OBJECTS.player.bottom.setFriction(1);
@@ -307,65 +307,45 @@ function update() {
 
             GAME_OBJECTS.player.addFallConstraint(isFallAngle);
 
-            setTimeout(() => {
-                GAME_OBJECTS.player.stop();
+            this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
 
-                this.tweens.pauseAll();
+                if (bodyA.id === GAME_OBJECTS.ground.instance.id && bodyB.id === GAME_OBJECTS.player.top.body.id) {
+                    setTimeout(() => {
+                        GAME_OBJECTS.player.stop();
 
-                GAME_OBJECTS.death = new Death(this, {
-                    x: worldCenter + 110 * isFallAngle,
-                    y: Config.height - 90,
-                    texture: 'death'
-                })
+                        this.tweens.pauseAll();
 
-                GAME_OBJECTS.death.instance.anims.play('death');
+                        GAME_OBJECTS.death = new Death(this, {
+                            x: worldCenter + 110 * isFallAngle,
+                            y: Config.height - 90,
+                            texture: 'death'
+                        })
 
-                this.tweens.add({
-                    targets: GAME_OBJECTS.player.bodyParts,
-                    y: '+=300',
-                    duration: 1500,
-                    delay: 1300,
-                    onComplete: () => {
-                        this.make.text({
-                            x: worldCenter,
-                            y: worldMiddle,
-                            text: 'YOU DIED',
-                            style: {
-                                font: '700 72px Montserrat',
-                                fill: Colors.hex.white
+                        GAME_OBJECTS.death.instance.anims.play('death');
+
+                        this.tweens.add({
+                            targets: GAME_OBJECTS.player.bodyParts,
+                            y: '+=300',
+                            duration: 1500,
+                            delay: 1300,
+                            onComplete: () => {
+                                this.make.text({
+                                    x: worldCenter,
+                                    y: worldMiddle,
+                                    text: 'YOU DIED',
+                                    style: {
+                                        font: '700 72px Montserrat',
+                                        fill: Colors.hex.white
+                                    }
+                                }).setOrigin(0.5, 0.5);
+
+                                this.scene.pause();
                             }
-                        }).setOrigin(0.5, 0.5);
+                        });
+                    }, 200);
+                }
 
-                        this.scene.pause();
-                    }
-                });
-            }, 800);
-
-            // GAME_OBJECTS.player.bottom.setAngle(60 * isFallAngle);
-
-            // GAME_OBJECTS.player.top.setStatic(true);
-            // GAME_OBJECTS.player.bottom.setStatic(true);
-
-            // GAME_OBJECTS.player.top.setCollidesWith(null);
-            // GAME_OBJECTS.player.bottom.setCollidesWith(null);
-
-            // this.tweens.add({
-            //     targets: [GAME_OBJECTS.player.bottom, GAME_OBJECTS.player.top],
-            //     y: '+=500',
-            //     duration: 1000,
-            //     onComplete: () => {
-
-            //     }
-            // });
-
-            // GAME_OBJECTS.player.top.setCollidesWith(null);
-            // GAME_OBJECTS.player.bottom.setCollidesWith(null);
-
-            // GAME_OBJECTS.backgrounds.groups.global.ground.instance.setDepth(10);
-            // GAME_OBJECTS.backgrounds.groups.global.ground.depth = 10;
-
-            // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomLeft);
-            // this.matter.world.removeConstraint(GAME_OBJECTS.player.constraints.bottomRight);
+            });
         }
 
         /** Update counter */
