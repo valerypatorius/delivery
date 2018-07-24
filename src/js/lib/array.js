@@ -3,13 +3,11 @@
  * @param {Array} array
  */
 export const getMostFrequentValue = (array) => {
-
     let result = [...array];
 
     return result.sort((a, b) =>
         result.filter(v => v === a).length - result.filter(v => v === b).length
     ).pop();
-
 };
 
 /**
@@ -17,7 +15,6 @@ export const getMostFrequentValue = (array) => {
  * @param {Array} array
  */
 export const shuffle = (array) => {
-
     let j, x, i;
 
     for (i = array.length - 1; i > 0; i--) {
@@ -26,7 +23,6 @@ export const shuffle = (array) => {
         array[i] = array[j];
         array[j] = x;
     }
-
 };
 
 /**

@@ -221,27 +221,27 @@ class Player {
             }
         });
 
-        this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: -this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
+        // this.constraints.bottomLeft = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        //     pointA: {
+        //         x: this.sizes.bottom.width / 2,
+        //         y: this.sizes.bottom.height / 2
+        //     },
+        //     pointB: {
+        //         x: -this.sizes.top.width / 2,
+        //         y: -this.sizes.top.height / 2
+        //     }
+        // });
 
-        this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
-            pointA: {
-                x: -this.sizes.bottom.width / 2,
-                y: this.sizes.bottom.height / 2
-            },
-            pointB: {
-                x: this.sizes.top.width / 2,
-                y: -this.sizes.top.height / 2
-            }
-        });
+        // this.constraints.bottomRight = this.matter.add.constraint(this.bottom, this.top, this.sizes.springLength, 0.001, {
+        //     pointA: {
+        //         x: -this.sizes.bottom.width / 2,
+        //         y: this.sizes.bottom.height / 2
+        //     },
+        //     pointB: {
+        //         x: this.sizes.top.width / 2,
+        //         y: -this.sizes.top.height / 2
+        //     }
+        // });
     }
 
     addFallConstraint(sign) {

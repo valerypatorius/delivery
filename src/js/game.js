@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 
 import Config from './config';
 import Colors from './colors';
+import Intervals from './intervals';
 import CollisionCategories from './collisionCategories';
 
 import Player from './player';
@@ -12,13 +13,31 @@ import Backgrounds from './backgrounds';
 
 import { isMobile } from './lib/check';
 import Death from './death';
+import Obstacles from './obstacle';
+import { getRandomNumber } from './lib/helper';
 
 let GAME_OBJECTS = {
     backgrounds: null,
     ground: null,
     player: null,
-    death: null
+    death: null,
+    obstacles: null
 };
+
+let STATE = {
+    started: false,
+    paused: false,
+    stopped: false
+};
+
+// let INTERVAL = {
+//     location: null,
+//     obstacles: null,
+//     counter: null
+// };
+
+let OBSTACLES = null;
+let OBSTACLES_FREQUENCY = 5;
 
 let COUNTER = null;
 let CURSORS = null;
@@ -26,16 +45,7 @@ let KEYS = null;
 let POINTER = null;
 
 let LOCATION = 0;
-let LOCATION_PROGRESS = 0;
-
-let PROGRESS = null;
 let SCORE = 0;
-
-let STATE = {
-    started: false,
-    paused: false,
-    stopped: false
-};
 
 class Main {
     constructor() {
@@ -49,7 +59,7 @@ class Main {
                 matter: {
                     gravity: {
                         x: 0,
-                        y: 3
+                        y: 2
                     },
                     // debug: true,
                     debugBodyColor: 0xffffff
@@ -88,7 +98,7 @@ function preload() {
         frameHeight: 95
     });
 
-    /** Death */
+    /** Death hands */
     this.load.spritesheet('death', `./assets/death.png`, {
         frameWidth: 355,
         frameHeight: 110
@@ -137,6 +147,14 @@ function preload() {
     for (let i = 1; i <= 5; i++){
         this.load.image(`background_city_front_${i}`, `${path}/front/${i}.png`);
     }
+
+    /** Obstacles */
+    path = './assets/obstacles';
+
+    this.load.image(`obstacle_debree`, `${path}/debree.png`);
+    this.load.image(`obstacle_ladder`, `${path}/ladder.png`);
+    this.load.image(`obstacle_ladder_ground`, `${path}/ladder_ground.png`);
+    this.load.image('obstacle_ghosts', `${path}/ghosts.png`);
 
     /** Show load progress */
     let text = this.make.text({
@@ -190,7 +208,10 @@ function create() {
         }
     });
 
-    /** Prepare walking animation */
+    /** Obstacles */
+    GAME_OBJECTS.obstacles = new Obstacles(this, GAME_OBJECTS.backgrounds, GAME_OBJECTS.player);
+
+    /** Prepare animations */
     this.anims.create({
         key: 'walking',
         frames: this.anims.generateFrameNumbers('legs', { start: 0, end: 120 }),
@@ -215,10 +236,9 @@ function create() {
         key: 'death',
         frames: this.anims.generateFrameNumbers('death', { start: 0, end: 156 }),
         frameRate: 60,
-        // repeat: -1
     });
 
-    /** Cursors */
+    /** Controls */
     CURSORS = this.input.keyboard.createCursorKeys();
     POINTER = this.input.pointer1;
     KEYS = {
@@ -239,7 +259,10 @@ function create() {
         }
     }).setOrigin(1, 0).setVisible(false);
 
+    /** Fade camera in */
     this.cameras.main.fadeIn(1000);
+
+    OBSTACLES = ['obstacle_debree', 'obstacle_ladder', 'obstacle_ghosts'];
 }
 
 function update() {
@@ -258,14 +281,14 @@ function update() {
 
             if (!STATE.started) {
                 STATE.started = true;
-                start(this.time);
+                start(this);
             }
         } else if (CURSORS.left.isDown || KEYS.A.isDown) {
             GAME_OBJECTS.player.top.setVelocity(-1, -0.5);
 
             if (!STATE.started) {
                 STATE.started = true;
-                start(this.time);
+                start(this);
             }
         }
 
@@ -291,6 +314,12 @@ function update() {
         if (isFallAngle !== 0) {
             STATE.stopped = true;
 
+            for (let item in Intervals) {
+                Intervals[item].remove(false);
+            }
+
+            this.cameras.main.resetFX();
+
             GAME_OBJECTS.player.legs.anims.stop('walking');
             GAME_OBJECTS.player.flashlight.anims.stop('flashlight');
 
@@ -307,64 +336,58 @@ function update() {
 
             GAME_OBJECTS.player.addFallConstraint(isFallAngle);
 
-            this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
+            setTimeout(() => {
+                GAME_OBJECTS.player.stop();
 
-                if (bodyA.id === GAME_OBJECTS.ground.instance.id && bodyB.id === GAME_OBJECTS.player.top.body.id) {
-                    setTimeout(() => {
-                        GAME_OBJECTS.player.stop();
+                this.tweens.pauseAll();
 
-                        this.tweens.pauseAll();
+                GAME_OBJECTS.death = new Death(this, {
+                    x: worldCenter + 110 * isFallAngle,
+                    y: Config.height - 90,
+                    texture: 'death'
+                })
 
-                        GAME_OBJECTS.death = new Death(this, {
-                            x: worldCenter + 110 * isFallAngle,
-                            y: Config.height - 90,
-                            texture: 'death'
-                        })
+                GAME_OBJECTS.death.instance.anims.play('death');
 
-                        GAME_OBJECTS.death.instance.anims.play('death');
-
-                        this.tweens.add({
-                            targets: GAME_OBJECTS.player.bodyParts,
-                            y: '+=300',
-                            duration: 1500,
-                            delay: 1300,
-                            onComplete: () => {
-                                this.make.text({
-                                    x: worldCenter,
-                                    y: worldMiddle,
-                                    text: 'YOU DIED',
-                                    style: {
-                                        font: '700 72px Montserrat',
-                                        fill: Colors.hex.white
-                                    }
-                                }).setOrigin(0.5, 0.5);
-
-                                this.scene.pause();
+                this.tweens.add({
+                    targets: GAME_OBJECTS.player.bodyParts,
+                    y: '+=300',
+                    duration: 1500,
+                    delay: 1300,
+                    onComplete: () => {
+                        this.make.text({
+                            x: worldCenter,
+                            y: worldMiddle,
+                            text: 'YOU DIED',
+                            style: {
+                                font: '700 72px Montserrat',
+                                fill: Colors.hex.white
                             }
-                        });
-                    }, 200);
-                }
+                        }).setOrigin(0.5, 0.5);
 
-            });
+                        this.scene.pause();
+                    }
+                });
+            }, 1200);
         }
 
         /** Update counter */
-        if (PROGRESS) {
+        if (Intervals.counter) {
             COUNTER.setText(SCORE + 'м');
         }
     }
 
     /** Pause game */
-    // if (KEYS.ESC.isDown) {
-    //     pause(!IS_PAUSED);
+    // if (KEYS.ESC.isUp) {
+    //     pause(this.scene, !STATE.paused);
     // }
 }
 
-function start(time) {
+function start(game) {
     GAME_OBJECTS.player.setStable(false);
 
     /** Update counter */
-    PROGRESS = time.addEvent({
+    Intervals.counter = game.time.addEvent({
         loop: true,
         delay: 1000,
         callback: () => {
@@ -374,7 +397,7 @@ function start(time) {
     COUNTER.setVisible(true);
 
     /** Update location */
-    LOCATION_PROGRESS = time.addEvent({
+    Intervals.location = game.time.addEvent({
         loop: true,
         delay: 50 * 1000,
         callback: () => {
@@ -384,23 +407,54 @@ function start(time) {
                 LOCATION = 0;
             }
 
-            GAME_OBJECTS.backgrounds.changeLocation(LOCATION);
+            GAME_OBJECTS.backgrounds.changeLocation(LOCATION, GAME_OBJECTS.obstacles.imagesToTween);
+        }
+    });
+
+    /** Spawn obstacles interval */
+    addObstacles(game);
+}
+
+function addObstacles(game) {
+    Intervals.obstacles = game.time.addEvent({
+        delay: OBSTACLES_FREQUENCY * 1000,
+        callback: () => {
+            let texture = OBSTACLES[getRandomNumber(0, OBSTACLES.length - 1)];
+            let bottomOffset = 0;
+
+            switch (texture) {
+                case 'obstacle_ladder':
+                    bottomOffset = 102;
+                    break;
+                case 'obstacle_debree':
+                    bottomOffset = 92;
+                    break;
+                default:
+                    bottomOffset = 55;
+                    break;
+            }
+
+            GAME_OBJECTS.obstacles.spawn({
+                x: Config.width,
+                y: Config.height - bottomOffset,
+                texture
+            });
+
+            OBSTACLES_FREQUENCY = getRandomNumber(5, 15);
+
+            addObstacles(game);
         }
     });
 }
 
-// let pause = (isPaused) => {
-//     if (isPaused) {
-//         GAME_OBJECTS.player.stop();
-//         GAME_OBJECTS.backgrounds.stop();
-//         GAME_OBJECTS.player.bottom.anims.pause();
-//     } else {
-//         GAME_OBJECTS.player.play();
-//         GAME_OBJECTS.backgrounds.play();
-//         GAME_OBJECTS.player.bottom.anims.resume();
-//     }
+function pause(scene, isPaused) {
+    if (isPaused) {
+        scene.pause();
+    } else {
+        scene.resume();
+    }
 
-//     IS_PAUSED = isPaused;
-// };
+    STATE.paused = isPaused;
+};
 
 export default Main;

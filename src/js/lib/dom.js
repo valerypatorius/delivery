@@ -1,11 +1,10 @@
 /**
  * Make html element
  * @param {String} tagName
- * @param {Array} classNames - array of classnames
+ * @param {Array|String} classNames - array of classnames or string for single classname
  * @param {Object} attributes - object with html attributes
  */
 export const makeElement = (tagName, classNames = [], attributes = []) => {
-
     tagName = tagName.toLowerCase();
 
     let element = document.createElement(tagName);
@@ -21,33 +20,26 @@ export const makeElement = (tagName, classNames = [], attributes = []) => {
     }
 
     for (let attr in attributes) {
-
         if (attr === 'data') {
-
             let dataAttributes = attributes[attr];
 
             for (let attr in dataAttributes) {
                 element.dataset[attr] = dataAttributes[attr];
             }
-
         } else {
             element[attr] = attributes[attr];
         }
-
     }
 
     return element;
-
 };
 
 /**
- * Cache elements with data-view attribute and put them in object
- * @param {Object} obj
+ * Cache elements with [data-view] attribute and put them in given object
+ * @param {Object} obj - object
  */
-export const cacheElements = (obj) => {
-
+export const cacheElements = (obj, attr = 'view') => {
     let newObj = {},
-        attr = 'view',
         elements = document.querySelectorAll(`[data-${attr}]`);
 
     Array.prototype.forEach.call(elements, el => {
@@ -56,15 +48,13 @@ export const cacheElements = (obj) => {
     });
 
     Object.assign(obj, newObj);
-
 };
 
 /**
- * Get all siblings of specified element
+ * Get all siblings of specified element, excluding this element
  * @param {Element} element
  */
 export const getSiblings = (element) => {
-
     let siblings = [],
         sibling = element.parentNode.firstChild;
 
@@ -74,7 +64,6 @@ export const getSiblings = (element) => {
     }
 
     return siblings;
-
 };
 
 /**
@@ -82,11 +71,9 @@ export const getSiblings = (element) => {
  * @param {Element} parent
  */
 export const removeChildren = (parent) => {
-
     while (parent.firstChild) {
         parent.removeChild(parent.firstChild);
     }
-
 };
 
 /**
@@ -99,20 +86,28 @@ export const removeElement = (element) => {
     }
 };
 
+/**
+ * Transform html string to node
+ * @param {String} html
+ */
 export const htmlStringToNode = (html) => {
-
     let el = document.createElement('div');
 
     el.innerHTML = html;
 
     return el.firstChild;
-
 };
 
+/**
+ * Prepend source element before first child of target element
+ * @param {Element} parent
+ * @param {Element} el
+ */
 export const prepend = (parent, el) => {
     parent.insertBefore(el, parent.firstChild);
 };
 
+/** Quick check if element is in DOM */
 export const isElementInDom = (el) => {
     return el.parentNode;
 };

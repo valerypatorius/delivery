@@ -1,5 +1,6 @@
 import Config from './config';
 import Colors from './colors';
+import Intervals from './intervals';
 
 import ImageTween from './imageTween';
 
@@ -41,7 +42,7 @@ class Backgrounds {
                     length: 1,
                     last: 1,
                     offsetBetween: 100,
-                    offsetBottom: 100,
+                    offsetBottom: 40,
                     duration: 65,
                     depth: -4,
                     isActive: true
@@ -187,7 +188,7 @@ class Backgrounds {
             this.generateSequence(this.groups[this.currentLocation][name], 0);
         }
 
-        this.overlay = this.game.add.image(0, 0, 'pixel').setOrigin(0, 0).setScale(Config.width, Config.height).setDepth(-2);
+        this.overlay = this.game.add.image(0, 0, 'pixel').setOrigin(0, 0).setScale(Config.width, Config.height).setDepth(0);
         this.overlay.setTint(Colors[this.currentLocation].overlay).setBlendMode(Phaser.BlendModes.MULTIPLY);
     }
 
@@ -207,6 +208,7 @@ class Backgrounds {
     /**
      * Generate new images in group
      * @param {Object} group - group object
+     * @param {sequenceStartX} number - start position (left screen edge by default)
      */
     generateSequence(group, sequenceStartX = 0) {
         let spawnPositionX = group.lastImage ? group.lastImage.getBottomRight().x : sequenceStartX;
@@ -237,7 +239,7 @@ class Backgrounds {
                 this.images[group.label] = this.images[group.label].filter(item => item !== image);
             },
             onUpdate: () => {
-                let rightBound = group.lastImage.getBottomRight().x;
+                let rightBound = group.lastImage ? group.lastImage.getBottomRight().x : Config.width;
 
                 /**
                  * Additional check for negative offsets,
@@ -268,10 +270,15 @@ class Backgrounds {
     /**
      * Change current location with tint tweening
      * @param {Number} index - location index
+     * @param {Array} obstacles - existing obstacles to tween
      */
-    changeLocation(index) {
+    changeLocation(index, obstacles) {
         let prevLocation = this.groups[this.currentLocation];
         let startColors = Colors[this.currentLocation];
+
+        if (Intervals.obstacles) {
+            Intervals.obstacles.paused = true;
+        }
 
         prevLocation.back.isActive = false;
         prevLocation.front.isActive = false;
@@ -295,6 +302,10 @@ class Backgrounds {
         /** Generate grass images in forest location */
         if (this.currentLocation === 'forest') {
             this.generateGrassSequence();
+        } else {
+            this.groups.grass.isActive = false;
+            this.groups.grass.lastImage = null;
+            this.groups.grass.last = 1;
         }
 
         /** Tween overlay */
@@ -302,10 +313,24 @@ class Backgrounds {
 
         setTimeout(() => {
             let tween = new ImageTween(this.game, this.overlay);
-            tween.init(startColors.overlay, endColors.overlay);
+            tween.init(startColors.overlay, endColors.overlay, () => {
+                if (Intervals.obstacles) {
+                    Intervals.obstacles.paused = false;
+                }
+            });
+
+            /** Tween obstacles */
+            obstacles.forEach(item => {
+                let tween = new ImageTween(this.game, item);
+                tween.init(startColors.front, endColors.front);
+            });
+
         }, tweenDelay);
     }
 
+    /**
+     * Add grass layer
+     */
     generateGrassSequence() {
         let group = this.groups.grass;
         let startPositionX = this.groups.forest.front.lastImage ? this.groups.forest.front.lastImage.getBottomLeft().x : 0;

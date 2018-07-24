@@ -12,23 +12,14 @@ export default {
     },
     wasteland: {
         overlay: 0x848278,
-        cords: 0x5c5a53,
-        landscape: 0x7a7870,
-        back: 0x66645e,
-        front: 0x4d4b46
+        front: 0x44433e
     },
     forest: {
         overlay: 0x718276,
-        cords: 0x434e45,
-        landscape: 0x68786c,
-        back: 0x526055,
-        front: 0x364038
+        front: 0x3a433d
     },
     city: {
         overlay: 0x7b8289,
-        cords: 0x55595b,
-        landscape: 0x6e757b,
-        back: 0x616669,
-        front: 0x494d4f
+        front: 0x414448
     }
 };

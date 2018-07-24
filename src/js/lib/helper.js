@@ -1,25 +1,20 @@
 /**
  * Simple images preload
- * @param {Array} urls - array of images urls
+ * @param {Array} urls - array of urls
  */
 export const preloadImages = (urls) => {
-
     urls.forEach(url => {
-
         let image = new Image();
         image.src = url;
-
     });
-
 };
 
 /**
  * Decline russian words
  * @param {Number} number
- * @param {Array} words - array of 3 words
+ * @param {Array} words - array of 3 words (e.g. ['машина','машины','машин'])
  */
 export const declineWord = (number, words) => {
-
     let result = number + '&nbsp;';
 
     if (number % 10 == 1 && number % 100 != 11) {
@@ -31,13 +26,12 @@ export const declineWord = (number, words) => {
     }
 
     return result;
-
 };
 
 /**
  * Format large numbers
  * @param {Number} number
- * @param {String} string - string to insert after thousands. Non-breaking space by default
+ * @param {String} string - string between thousands. Non-breaking space by default
  */
 export const formatNumber = (number, string = '&nbsp;') => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, string);
@@ -49,15 +43,19 @@ export const formatNumber = (number, string = '&nbsp;') => {
  * @param {Number} offset - offset from top
  */
 export const scrollToElement = (element, offset = 0) => {
-
     let y = element.getBoundingClientRect().top + (window.scrollY || window.pageYOffset) - offset;
 
-    // window.scroll(0, y, );
+    window.scroll(0, y);
 
-    window.scroll({ top: y, left: 0, behavior: 'smooth' });
-
+    // Uncomment when using native smooth scroll with smoothscroll-polyfill
+    // window.scroll({ top: y, left: 0, behavior: 'smooth' });
 };
 
+/**
+ * Copy certain string to clipboard
+ * @param {String} string - string to copy
+ * @param {Function} callback - fired whether command was successful or not
+ */
 export const copyToClipboard = (string, callback) => {
     let input = document.createElement('textarea'),
         isSuccess = false;
@@ -70,17 +68,20 @@ export const copyToClipboard = (string, callback) => {
     });
 
     input.value = string;
-
     document.body.appendChild(input);
-
     input.select();
 
     try {
-        let copy = document.execCommand('copy');
+        document.execCommand('copy');
         isSuccess = true;
     } catch (e) { }
 
     document.body.removeChild(input);
 
     callback(isSuccess);
+};
+
+/** Return random number in given range */
+export const getRandomNumber = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
 };
