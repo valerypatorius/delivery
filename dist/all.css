@@ -2,19 +2,150 @@ html {
   height: 100%;
 }
 body {
-  min-height: 100%;
-  background-color: #000;
-  color: #fff;
   margin: 0;
-  font: 18px/1.6em 'Montserrat', sans-serif;
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  overflow: hidden;
   display: -ms-flexbox;
   display: flex;
   -ms-flex-direction: column;
       flex-direction: column;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+svg {
+  display: block;
+  fill: currentColor;
+  pointer-events: none;
+}
+input,
+button,
+textarea,
+select {
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+  box-shadow: none !important;
+  border-radius: 0;
+  -webkit-appearance: none;
+  outline: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+input[disabled],
+button[disabled],
+textarea[disabled],
+select[disabled] {
+  pointer-events: none;
+}
+textarea {
+  resize: none;
+}
+button {
+  cursor: pointer;
+}
+p {
+  margin: 0;
+}
+.likely--custom {
+  display: -ms-flexbox;
+  display: flex;
+}
+.likely__widget {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: center;
+      justify-content: center;
+  cursor: pointer;
+}
+.likely__counter {
+  display: none;
+}
+.likely__icon svg {
+  display: block;
+}
+html {
+  height: 100%;
+}
+body {
+  background-color: #000;
+  color: #fff;
+  font: 18px/1.6em 'Montserrat', sans-serif;
   -ms-flex-pack: center;
       justify-content: center;
   -ms-flex-align: center;
       align-items: center;
+  overflow: hidden;
+}
+.noise {
+  width: 100%;
+  height: 100%;
+  background-image: url("../assets/noise.gif");
+  mix-blend-mode: overlay;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  opacity: 0.5;
+}
+.overlay {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: center;
+      justify-content: center;
+}
+.overlayContent {
+  width: 100%;
+  max-width: 960px;
+}
+.pause {
+  max-width: 421px;
+  margin: 0 auto;
+}
+.pause__title {
+  font-size: 52px;
+  line-height: 1em;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.pause__button {
+  width: 100%;
+  height: 62px;
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: 700;
+  background-image: url("../assets/ui/pause_button.png");
+  background-repeat: no-repeat;
+  background-position: 50% 0;
+  background-color: transparent;
+}
+.pause__button svg {
+  display: inline;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
+  margin-right: 13px;
+}
+.pause__button:hover,
+.pause__button:focus {
+  background-position: 50% 100%;
 }
 
 /*# sourceMappingURL=all.css.map*/

@@ -4,7 +4,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 
-import Config from './src/js/config.js';
+import Config from './src/js/base/config.js';
 
 const isProduction = process.env.NODE_ENV === 'prod';
 
