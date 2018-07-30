@@ -16,7 +16,15 @@ class Pause extends Phaser.Scene {
             GameObjects.activeOverlay.focusButton(1);
         });
 
+        this.input.keyboard.on('keydown_S', () => {
+            GameObjects.activeOverlay.focusButton(1);
+        });
+
         this.input.keyboard.on('keydown_UP', () => {
+            GameObjects.activeOverlay.focusButton(-1);
+        });
+
+        this.input.keyboard.on('keydown_W', () => {
             GameObjects.activeOverlay.focusButton(-1);
         });
     }

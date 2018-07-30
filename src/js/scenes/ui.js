@@ -11,6 +11,8 @@ let BUTTONS = {
 let COUNTER = null;
 let SCORE = null;
 
+let BALANCE_HELPER = {};
+
 class Ui extends Phaser.Scene {
     constructor() {
         super({
@@ -25,9 +27,15 @@ class Ui extends Phaser.Scene {
             frameWidth: 62,
             frameHeight: 52
         });
+
+        this.load.image('balance_line', './assets/ui/balance_line.png');
+        this.load.image('balance_anchor', './assets/ui/balance_anchor.png');
     }
 
     create() {
+        let worldCenter = Config.width / 2;
+        let worldMiddle = Config.height / 2;
+
         let MainScene = this.scene.get('Main');
 
         /** Pause */
@@ -90,6 +98,10 @@ class Ui extends Phaser.Scene {
                 fill: Colors.hex.white
             }
         }).setOrigin(1, 0).setVisible(false);
+
+        /** Balance helper */
+        BALANCE_HELPER.line = this.add.image(worldCenter, Config.height - 400, 'balance_line').setOrigin(0.5, 1);
+        BALANCE_HELPER.anchor = this.add.image(worldCenter, Config.height - 365, 'balance_anchor').setOrigin(0.5, 1);
     }
 
     update() {
@@ -113,6 +125,17 @@ class Ui extends Phaser.Scene {
 
     updateIcons() {
         BUTTONS.sound.setFrame(Config.mute ? 1 : 0);
+    }
+
+    updateAnchor(angle) {
+        if (BALANCE_HELPER.anchor) {
+            BALANCE_HELPER.anchor.setAngle(angle*0.799);
+        }
+    }
+
+    setAnchorVisible(isVisible = true) {
+        BALANCE_HELPER.line.setVisible(isVisible);
+        BALANCE_HELPER.anchor.setVisible(isVisible);
     }
 }
 

@@ -20,6 +20,8 @@ import {
     isElementInDom, removeElement
 } from '../lib/dom';
 
+let LOCATION = 0;
+
 let CURSORS = null;
 let KEYS = null;
 let POINTER = null;
@@ -296,17 +298,22 @@ class Main extends Phaser.Scene {
 
         if (!States.stopped && !States.paused) {
 
+            let playerAngle = GameObjects.player.top.angle;
+
             /** PLay walking animation */
             GameObjects.player.legs.anims.play('walking', true);
             GameObjects.player.flashlight.anims.play('flashlight', true);
 
             /** Control balance with keyboard */
+            let deltaY = Math.abs(Math.round(playerAngle / 10));
+            let velocityY = 2 / (deltaY !== 0 ? deltaY : 2);
+
             if (CURSORS.right.isDown || KEYS.D.isDown) {
-                GameObjects.player.top.setVelocity(1.25, 2);
+                GameObjects.player.top.setVelocity(1.5, playerAngle > 0 ? -velocityY : velocityY);
 
                 this.start();
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
-                GameObjects.player.top.setVelocity(-1, -0.5);
+                GameObjects.player.top.setVelocity(-2, playerAngle > 0 ? velocityY : -velocityY);
 
                 this.start();
             }
@@ -314,16 +321,19 @@ class Main extends Phaser.Scene {
             /** Control balance with touch */
             if (POINTER.isDown) {
                 if (POINTER.worldX < Config.width / 2) {
-                    GameObjects.player.top.setVelocity(-1.25, -2);
+                    GameObjects.player.top.setVelocity(-2, playerAngle > 0 ? velocityY : -velocityY);
                 } else if (POINTER.worldX >= Config.width / 2) {
-                    GameObjects.player.top.setVelocity(1.25, 2);
+                    GameObjects.player.top.setVelocity(1.5, playerAngle > 0 ? -velocityY : velocityY);
                 }
 
                 this.start();
             }
 
+            /** Update ui anchor angle */
+            let UiScene = this.scene.get('Ui');
+            UiScene.updateAnchor(playerAngle);
+
             /** If fall angle is too large, drop player and end the game */
-            let playerAngle = GameObjects.player.top.angle;
             let isFallAngle = 0;
 
             if (playerAngle > Config.maxPlayerFallAngle) {
@@ -334,6 +344,8 @@ class Main extends Phaser.Scene {
 
             if (isFallAngle !== 0) {
                 States.stopped = true;
+
+                UiScene.setAnchorVisible(false);
 
                 for (let item in Intervals) {
                     if (Intervals[item]) {
@@ -356,7 +368,7 @@ class Main extends Phaser.Scene {
 
                 GameObjects.player.bottom.setIgnoreGravity(false);
 
-                GameObjects.player.top.setDensity(100);
+                GameObjects.player.top.setDensity(200);
                 GameObjects.player.bottom.setDensity(350);
 
                 GameObjects.player.top.setFriction(1);
@@ -367,42 +379,51 @@ class Main extends Phaser.Scene {
 
                 GameObjects.player.addFallConstraint(isFallAngle);
 
-                DEATH_TIMEOUT = setTimeout(() => {
-                    GameObjects.player.stop();
+                /** Finish game */
+                this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
 
-                    this.tweens.pauseAll();
+                    let isTouchedGround = bodyA.id === GameObjects.ground.instance.id;
 
-                    this.tweens.addCounter({
-                        from: 1,
-                        to: 0,
-                        duration: 2000,
-                        onUpdate: counter => {
-                            let value = parseFloat(counter.getValue().toFixed(1));
-                            Audio.theme.setVolume(value);
-                        },
-                        onComplete: () => {
-                            Audio.theme.stop();
-                        }
-                    });
+                    if (isTouchedGround) {
+                        this.tweens.pauseAll();
 
-                    GameObjects.death = new Death(this, {
-                        x: worldCenter + 110 * isFallAngle,
-                        y: Config.height - 90,
-                        texture: 'death'
-                    });
+                        DEATH_TIMEOUT = setTimeout(() => {
+                            GameObjects.player.stop();
 
-                    GameObjects.death.instance.anims.play('death');
+                            this.tweens.addCounter({
+                                from: 1,
+                                to: 0,
+                                duration: 2000,
+                                onUpdate: counter => {
+                                    let value = parseFloat(counter.getValue().toFixed(1));
+                                    Audio.theme.setVolume(value);
+                                },
+                                onComplete: () => {
+                                    Audio.theme.stop();
+                                }
+                            });
 
-                    this.tweens.add({
-                        targets: GameObjects.player.bodyParts,
-                        y: '+=300',
-                        duration: 1500,
-                        delay: 1300,
-                        onComplete: () => {
-                            // this.scene.pause();
-                        }
-                    });
-                }, 1200);
+                            GameObjects.death = new Death(this, {
+                                x: worldCenter + 110 * isFallAngle,
+                                y: Config.height - 90,
+                                texture: 'death'
+                            });
+
+                            GameObjects.death.instance.anims.play('death');
+
+                            this.tweens.add({
+                                targets: GameObjects.player.bodyParts,
+                                y: '+=300',
+                                duration: 1500,
+                                delay: 1300,
+                                onComplete: () => {
+                                    // this.scene.pause();
+                                }
+                            });
+                        }, 500);
+                    }
+
+                });
             }
         }
     }
@@ -449,6 +470,8 @@ class Main extends Phaser.Scene {
     restart() {
         if (States.created) {
             let UiScene = this.scene.get('Ui');
+
+            UiScene.setAnchorVisible(true);
 
             for (let item in Intervals) {
                 if (Intervals[item]) {
