@@ -10,6 +10,7 @@ let BUTTONS = {
 
 let COUNTER = null;
 let SCORE = null;
+let TIP = {};
 
 let BALANCE_HELPER = {};
 
@@ -30,6 +31,8 @@ class Ui extends Phaser.Scene {
 
         this.load.image('balance_line', './assets/ui/balance_line.png');
         this.load.image('balance_anchor', './assets/ui/balance_anchor.png');
+
+        this.load.image('arrows', './assets/ui/arrows.png');
     }
 
     create() {
@@ -70,7 +73,7 @@ class Ui extends Phaser.Scene {
 
         BUTTONS.sound.on('pointerdown', () => {
             Config.mute = !Config.mute;
-            Audio.theme.setMute(Config.mute);
+            MainScene.sound.setMute(Config.mute);
 
             BUTTONS.sound.setFrame(Config.mute ? 1 : 0);
         });
@@ -102,6 +105,8 @@ class Ui extends Phaser.Scene {
         /** Balance helper */
         BALANCE_HELPER.line = this.add.image(worldCenter, Config.height - 400, 'balance_line').setOrigin(0.5, 1);
         BALANCE_HELPER.anchor = this.add.image(worldCenter, Config.height - 365, 'balance_anchor').setOrigin(0.5, 1);
+
+        this.addTip('start');
     }
 
     update() {
@@ -136,6 +141,41 @@ class Ui extends Phaser.Scene {
     setAnchorVisible(isVisible = true) {
         BALANCE_HELPER.line.setVisible(isVisible);
         BALANCE_HELPER.anchor.setVisible(isVisible);
+    }
+
+    addTip(type) {
+        let x = Config.width / 2;
+        let y = Config.height;
+
+        if (type === 'start') {
+            TIP.start = this.make.text({
+                x: x - 175,
+                y: y - 40,
+                text: 'Используй',
+                style: {
+                    font: '500 26px Montserrat',
+                    fill: Colors.hex.white
+                }
+            }).setOrigin(0.5, 1);
+
+            TIP.end = this.make.text({
+                x: x + 180,
+                y: y - 40,
+                text: ', чтобы держать равновесие',
+                style: {
+                    font: '500 26px Montserrat',
+                    fill: Colors.hex.white
+                }
+            }).setOrigin(0.5, 1);
+
+            TIP.icon = this.add.image(x - 55, y - 53, 'arrows');
+        }
+    }
+
+    removeTip() {
+        for (let object in TIP) {
+            TIP[object].destroy();
+        }
     }
 }
 

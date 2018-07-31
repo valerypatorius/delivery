@@ -137,8 +137,10 @@ class Overlay {
      * @param {Object} button
      */
     muteSound(button) {
+        let MainScene = this.scene.scene.get('Main');
+
         Config.mute = !Config.mute;
-        Audio.theme.setMute(Config.mute);
+        MainScene.sound.setMute(Config.mute);
 
         button.innerHTML = Config.mute ? (Svg.soundOff + 'Включить звук') : (Svg.soundOn + 'Выключить звук');
 

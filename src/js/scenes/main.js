@@ -134,8 +134,12 @@ class Main extends Phaser.Scene {
             }
 
             /** Sounds */
-            this.load.audio('theme', [
-                './assets/audio/theme.mp3'
+            this.load.audio('intro', [
+                './assets/audio/intro.mp3'
+            ]);
+
+            this.load.audio('loop', [
+                './assets/audio/loop.mp3'
             ]);
 
             /** Show load progress */
@@ -248,7 +252,8 @@ class Main extends Phaser.Scene {
         this.input.keyboard.on('keydown_ESC', () => this.pause());
         this.input.keyboard.on('keydown_M', () => {
             Config.mute = !Config.mute;
-            Audio.theme.setMute(Config.mute);
+
+            this.sound.setMute(Config.mute);
 
             let Ui = this.scene.get('Ui');
 
@@ -270,19 +275,29 @@ class Main extends Phaser.Scene {
         }
 
         /** Play main theme */
-        Audio.theme = this.sound.add('theme', {
+        Audio.intro = this.sound.add('intro', {
             mute: Config.mute,
-            loop: true,
-            volume: 0
+            loop: false,
+            // volume: 0
         });
 
-        Audio.theme.play();
+        Audio.loop = this.sound.add('loop', {
+            mute: Config.mute,
+            loop: true,
+            // volume: 0
+        });
+
+        Audio.intro.play();
+
+        Audio.loop.play({
+            delay: Audio.intro.duration
+        });
 
         this.tweens.addCounter({
             duration: 2000,
             onUpdate: counter => {
                 let value = parseFloat(counter.getValue().toFixed(1));
-                Audio.theme.setVolume(value);
+                this.sound.setVolume(value);
             }
         });
 
@@ -396,10 +411,10 @@ class Main extends Phaser.Scene {
                                 duration: 2000,
                                 onUpdate: counter => {
                                     let value = parseFloat(counter.getValue().toFixed(1));
-                                    Audio.theme.setVolume(value);
+                                    this.sound.setVolume(value);
                                 },
                                 onComplete: () => {
-                                    Audio.theme.stop();
+                                    this.sound.stop();
                                 }
                             });
 
@@ -440,7 +455,7 @@ class Main extends Phaser.Scene {
                 this.scene.launch('Pause');
             }
 
-            Audio.theme.pause();
+            this.sound.pauseAll();
 
             States.paused = false;
 
@@ -457,7 +472,7 @@ class Main extends Phaser.Scene {
 
             States.paused = false;
 
-            Audio.theme.resume();
+            this.sound.resumeAll();
 
             if (GameObjects.activeOverlay) {
                 GameObjects.activeOverlay.destroy();
@@ -531,6 +546,9 @@ class Main extends Phaser.Scene {
 
             /** Start counter */
             Ui.startCounter();
+
+            /** Remove welcome tip */
+            Ui.removeTip();
 
             /** Update location */
             Intervals.location = this.time.addEvent({
