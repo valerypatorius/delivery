@@ -138,6 +138,7 @@ strong {
 .overlay--start .overlayContent {
   max-width: none;
   position: relative;
+  min-height: 100vh;
 }
 .overlay--start .overlayContent:before {
   content: '';
