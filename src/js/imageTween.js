@@ -10,6 +10,12 @@ class ImageTween {
         this.duration = 2000;
     }
 
+    /**
+     * Initialize tint tween
+     * @param {Number} startColors
+     * @param {Number} endColors
+     * @param {Function} callback
+     */
     init(startColors, endColors, callback = null) {
         this.fromColors = this.toColors || this.formatColor(startColors);
         this.toColors = this.formatColor(endColors);
@@ -17,6 +23,10 @@ class ImageTween {
         this.tintTween(callback);
     }
 
+    /**
+     * Start tween
+     * @param {Function} callback - fired when tweening is completed
+     */
     tintTween(callback) {
         this.tween = this.game.tweens.addCounter({
             from: 0,

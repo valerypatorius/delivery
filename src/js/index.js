@@ -4,6 +4,8 @@ import Config from './base/config';
 
 import Phaser from 'phaser';
 
+const WebFont = require('webfontloader');
+
 import Main from './scenes/main';
 import Pause from './scenes/pause';
 import Ui from './scenes/ui';
@@ -32,4 +34,13 @@ preloadImages([
     './assets/ui/pause_button.png'
 ]);
 
-new Phaser.Game(GAME_CONFIG);
+WebFont.load({
+    google: {
+        families: ['Montserrat:400,500,700:cyrillic']
+    },
+    active: () => {
+        new Phaser.Game(GAME_CONFIG);
+    }
+});
+
+// new Phaser.Game(GAME_CONFIG);

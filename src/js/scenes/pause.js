@@ -1,8 +1,4 @@
-import States from '../base/states';
 import GameObjects from '../base/gameObjects';
-
-import Overlay from '../overlay';
-import { isElementInDom } from '../lib/dom';
 
 class Pause extends Phaser.Scene {
     constructor() {
@@ -12,6 +8,7 @@ class Pause extends Phaser.Scene {
     create() {
         this.input.keyboard.on('keydown_ESC', () => this.resume());
 
+        /** Navigate pause menu with keyboard */
         this.input.keyboard.on('keydown_DOWN', () => {
             GameObjects.activeOverlay.focusButton(1);
         });
@@ -29,9 +26,11 @@ class Pause extends Phaser.Scene {
         });
     }
 
+    /**
+     * Resume main scene
+     */
     resume() {
         let MainScene = this.scene.get('Main');
-
         MainScene.resume();
     }
 }

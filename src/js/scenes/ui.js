@@ -1,6 +1,5 @@
 import Config from '../base/config';
 import Colors from '../base/colors';
-import Audio from '../base/audio';
 import Intervals from '../base/intervals';
 
 let BUTTONS = {
@@ -10,9 +9,9 @@ let BUTTONS = {
 
 let COUNTER = null;
 let SCORE = null;
-let TIP = {};
 
 let BALANCE_HELPER = {};
+let TIP = {};
 
 class Ui extends Phaser.Scene {
     constructor() {
@@ -41,7 +40,7 @@ class Ui extends Phaser.Scene {
 
         let MainScene = this.scene.get('Main');
 
-        /** Pause */
+        /** Pause button */
         BUTTONS.pause = this.add.image(40, 40, 'pause').setOrigin(0, 0).setInteractive({
             cursor: 'pointer'
         });
@@ -57,7 +56,7 @@ class Ui extends Phaser.Scene {
 
         BUTTONS.pause.on('pointerdown', () => MainScene.pause());
 
-        /** Sound */
+        /** Sound button */
         BUTTONS.sound = this.add.sprite(185, 36, 'sound').setOrigin(1, 0).setInteractive({
             cursor: 'pointer'
         }).setFrame(Config.mute ? 1 : 0);
@@ -106,7 +105,16 @@ class Ui extends Phaser.Scene {
         BALANCE_HELPER.line = this.add.image(worldCenter, Config.height - 400, 'balance_line').setOrigin(0.5, 1);
         BALANCE_HELPER.anchor = this.add.image(worldCenter, Config.height - 365, 'balance_anchor').setOrigin(0.5, 1);
 
+        /** Start tip */
         this.addTip('start');
+
+        /** Listen for keys pressings */
+        this.input.keyboard.on('keydown_ESC', () => MainScene.pause());
+        this.input.keyboard.on('keydown_M', () => {
+            Config.mute = !Config.mute;
+            MainScene.sound.setMute(Config.mute);
+            this.updateIcons();
+        });
     }
 
     update() {
@@ -119,6 +127,9 @@ class Ui extends Phaser.Scene {
         }
     }
 
+    /**
+     * Start progress counter
+     */
     startCounter() {
         if (COUNTER) {
             Intervals.counter = this.time.addEvent({
@@ -128,23 +139,38 @@ class Ui extends Phaser.Scene {
         }
     }
 
+    /**
+     * Update ui icons (e.g. when sound is muted)
+     */
     updateIcons() {
         BUTTONS.sound.setFrame(Config.mute ? 1 : 0);
     }
 
-    updateAnchor(angle) {
+    /**
+     * Sync balance helper's angle with player's body
+     * @param {Number} angle
+     */
+    updateBalanceHelper(angle) {
         if (BALANCE_HELPER.anchor) {
             BALANCE_HELPER.anchor.setAngle(angle*0.799);
         }
     }
 
-    setAnchorVisible(isVisible = true) {
+    /**
+     * Show or hide balance helper
+     * @param {Boolean} isVisible
+     */
+    setBalanceHelperVisible(isVisible = true) {
         BALANCE_HELPER.line.setVisible(isVisible);
         BALANCE_HELPER.anchor.setVisible(isVisible);
     }
 
+    /**
+     * Add tip on screen (1 max)
+     * @param {String} type
+     */
     addTip(type) {
-        let x = Config.width / 2;
+        let x = Config.width / 2 - 60;
         let y = Config.height;
 
         if (type === 'start') {
@@ -172,6 +198,9 @@ class Ui extends Phaser.Scene {
         }
     }
 
+    /**
+     * Remove active tip
+     */
     removeTip() {
         for (let object in TIP) {
             TIP[object].destroy();

@@ -1,9 +1,7 @@
 import Svg from './svg';
-import States from './base/states';
 import GameObjects from './base/gameObjects';
 import { makeElement, removeElement, isElementInDom } from './lib/dom';
 import Config from './base/config';
-import Audio from './base/audio';
 
 let BUTTONS = null;
 
@@ -41,6 +39,9 @@ class Overlay {
         this.init();
     }
 
+    /**
+     * Append overlay
+     */
     init() {
         this.el = makeElement('div', 'overlay');
 
@@ -49,10 +50,15 @@ class Overlay {
         document.body.appendChild(this.el);
 
         clickHandler = clickHandler.bind(this);
-        document.body.addEventListener('click', clickHandler);
+        this.el.addEventListener('click', clickHandler);
     }
 
+    /**
+     * Destroy active overlay
+     */
     destroy() {
+        this.el.removeEventListener('click', clickHandler);
+
         if (isElementInDom(this.el)) {
             removeElement(this.el);
         }
@@ -61,10 +67,11 @@ class Overlay {
         GameObjects.activeOverlay = null;
 
         BUTTONS = null;
-
-        document.body.removeEventListener('click', clickHandler);
     }
 
+    /**
+     * Make content block
+     */
     makeContent() {
         switch (this.type) {
             case 'pause':
@@ -72,6 +79,9 @@ class Overlay {
         }
     }
 
+    /**
+     * Pause screen
+     */
     makePause() {
         this.content = makeElement('div', 'overlayContent');
 
@@ -124,10 +134,16 @@ class Overlay {
         this.el.appendChild(this.content);
     }
 
+    /**
+     * Resume main scene
+     */
     resumeGame() {
         this.scene.resume();
     }
 
+    /**
+     * Restart main scene
+     */
     restartGame() {
         this.scene.restart();
     }
@@ -151,7 +167,7 @@ class Overlay {
 
     /**
      * Navigate buttons on pouse screen
-     * @param {Number} sign
+     * @param {Number} sign - 1 or -1
      */
     focusButton(sign) {
         let Buttons = Object.values(BUTTONS);

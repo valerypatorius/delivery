@@ -9,7 +9,6 @@ import Ground from '../gameObjects/ground';
 import Backgrounds from '../gameObjects/backgrounds';
 import Death from '../gameObjects/death';
 import Obstacles from '../gameObjects/obstacles';
-import Audio from '../base/audio';
 
 import Overlay from '../overlay';
 
@@ -21,6 +20,8 @@ import {
 } from '../lib/dom';
 
 let LOCATION = 0;
+
+let AUDIO = {};
 
 let CURSORS = null;
 let KEYS = null;
@@ -249,16 +250,15 @@ class Main extends Phaser.Scene {
             D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
         };
 
-        this.input.keyboard.on('keydown_ESC', () => this.pause());
-        this.input.keyboard.on('keydown_M', () => {
-            Config.mute = !Config.mute;
+        // this.input.keyboard.on('keydown_ESC', () => this.pause());
+        // this.input.keyboard.on('keydown_M', () => {
+        //     Config.mute = !Config.mute;
 
-            this.sound.setMute(Config.mute);
+        //     this.sound.setMute(Config.mute);
 
-            let Ui = this.scene.get('Ui');
-
-            Ui.updateIcons();
-        });
+        //     let Ui = this.scene.get('Ui');
+        //     Ui.updateIcons();
+        // });
 
         /** Fade camera in */
         this.cameras.main.fadeIn(1000);
@@ -270,27 +270,21 @@ class Main extends Phaser.Scene {
             'obstacle_debree_1', 'obstacle_debree_2', 'obstacle_debree_3'
         ];
 
-        if (!States.created) {
-            this.scene.launch('Ui');
-        }
-
-        /** Play main theme */
-        Audio.intro = this.sound.add('intro', {
-            mute: Config.mute,
-            loop: false,
-            // volume: 0
+        /** Play sounds */
+        AUDIO.intro = this.sound.add('intro', {
+            loop: false
         });
 
-        Audio.loop = this.sound.add('loop', {
-            mute: Config.mute,
-            loop: true,
-            // volume: 0
+        AUDIO.loop = this.sound.add('loop', {
+            loop: true
         });
 
-        Audio.intro.play();
+        this.sound.setMute(Config.mute);
 
-        Audio.loop.play({
-            delay: Audio.intro.duration
+        AUDIO.intro.play();
+
+        AUDIO.loop.play({
+            delay: AUDIO.intro.duration
         });
 
         this.tweens.addCounter({
@@ -300,6 +294,11 @@ class Main extends Phaser.Scene {
                 this.sound.setVolume(value);
             }
         });
+
+        /** Launch ui */
+        if (!States.created) {
+            this.scene.launch('Ui');
+        }
 
         States.created = true;
 
@@ -321,14 +320,14 @@ class Main extends Phaser.Scene {
 
             /** Control balance with keyboard */
             let deltaY = Math.abs(Math.round(playerAngle / 10));
-            let velocityY = 2 / (deltaY !== 0 ? deltaY : 2);
+            let velocityY = 1.5 / (deltaY !== 0 ? deltaY : 2);
 
             if (CURSORS.right.isDown || KEYS.D.isDown) {
-                GameObjects.player.top.setVelocity(1.5, playerAngle > 0 ? -velocityY : velocityY);
+                GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
 
                 this.start();
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
-                GameObjects.player.top.setVelocity(-2, playerAngle > 0 ? velocityY : -velocityY);
+                GameObjects.player.top.setVelocity(-1.5, playerAngle > 0 ? velocityY : -velocityY);
 
                 this.start();
             }
@@ -336,9 +335,9 @@ class Main extends Phaser.Scene {
             /** Control balance with touch */
             if (POINTER.isDown) {
                 if (POINTER.worldX < Config.width / 2) {
-                    GameObjects.player.top.setVelocity(-2, playerAngle > 0 ? velocityY : -velocityY);
+                    GameObjects.player.top.setVelocity(-1.5, playerAngle > 0 ? velocityY : -velocityY);
                 } else if (POINTER.worldX >= Config.width / 2) {
-                    GameObjects.player.top.setVelocity(1.5, playerAngle > 0 ? -velocityY : velocityY);
+                    GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
                 }
 
                 this.start();
@@ -346,7 +345,7 @@ class Main extends Phaser.Scene {
 
             /** Update ui anchor angle */
             let UiScene = this.scene.get('Ui');
-            UiScene.updateAnchor(playerAngle);
+            UiScene.updateBalanceHelper(playerAngle);
 
             /** If fall angle is too large, drop player and end the game */
             let isFallAngle = 0;
@@ -360,8 +359,10 @@ class Main extends Phaser.Scene {
             if (isFallAngle !== 0) {
                 States.stopped = true;
 
-                UiScene.setAnchorVisible(false);
+                /** Hide balance helper */
+                UiScene.setBalanceHelperVisible(false);
 
+                /** Stop all counters */
                 for (let item in Intervals) {
                     if (Intervals[item]) {
                         if (item === 'counter') {
@@ -372,29 +373,37 @@ class Main extends Phaser.Scene {
                     }
                 }
 
+                /** Disable all active camera effects */
                 this.cameras.main.resetFX();
 
+                /** Disable noise overlay, if it exists */
                 if (isElementInDom(GameObjects.obstacles.noise)) {
                     removeElement(GameObjects.obstacles.noise);
                 }
 
+                /** Stop player sprite animations */
                 GameObjects.player.legs.anims.stop('walking');
                 GameObjects.player.flashlight.anims.stop('flashlight');
 
+                /** Drop bottom part */
                 GameObjects.player.bottom.setIgnoreGravity(false);
 
+                /** Increase player's body density to drop it quickly */
                 GameObjects.player.top.setDensity(200);
                 GameObjects.player.bottom.setDensity(350);
 
+                /** Remove friction from the body */
                 GameObjects.player.top.setFriction(1);
                 GameObjects.player.bottom.setFriction(1);
 
+                /** Remove friction from arms (just in case) */
                 GameObjects.player.rightHand.setFrictionAir(1);
                 GameObjects.player.leftHand.setFrictionAir(1);
 
+                /** Add so-called spine to prevent body folding */
                 GameObjects.player.addFallConstraint(isFallAngle);
 
-                /** Finish game */
+                /** Finish game completely, when body touches the ground  */
                 this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
 
                     let isTouchedGround = bodyA.id === GameObjects.ground.instance.id;
@@ -403,8 +412,11 @@ class Main extends Phaser.Scene {
                         this.tweens.pauseAll();
 
                         DEATH_TIMEOUT = setTimeout(() => {
+
+                            /** Freeze player's body */
                             GameObjects.player.stop();
 
+                            /** Fade music */
                             this.tweens.addCounter({
                                 from: 1,
                                 to: 0,
@@ -414,16 +426,18 @@ class Main extends Phaser.Scene {
                                     this.sound.setVolume(value);
                                 },
                                 onComplete: () => {
-                                    this.sound.stop();
+                                    this.sound.stopAll();
                                 }
                             });
 
+                            /** Add death object */
                             GameObjects.death = new Death(this, {
                                 x: worldCenter + 110 * isFallAngle,
                                 y: Config.height - 90,
                                 texture: 'death'
                             });
 
+                            /** Play death animation */
                             GameObjects.death.instance.anims.play('death');
 
                             this.tweens.add({
@@ -432,7 +446,7 @@ class Main extends Phaser.Scene {
                                 duration: 1500,
                                 delay: 1300,
                                 onComplete: () => {
-                                    // this.scene.pause();
+                                    // TODO: SHOW FINAL OVERLAY
                                 }
                             });
                         }, 500);
@@ -443,6 +457,47 @@ class Main extends Phaser.Scene {
         }
     }
 
+    /**
+     * Start game
+     */
+    start() {
+        let Ui = this.scene.get('Ui');
+
+        if (!States.started) {
+            States.started = true;
+
+            GameObjects.player.setStable(false);
+
+            /** Start counter */
+            Ui.startCounter();
+
+            /** Remove welcome tip */
+            Ui.removeTip();
+
+            /** Update location */
+            Intervals.location = this.time.addEvent({
+                loop: true,
+                delay: 50 * 1000,
+                callback: () => {
+                    LOCATION++;
+
+                    if (LOCATION > 2) {
+                        LOCATION = 0;
+                        Config.gravity++;
+                    }
+
+                    GameObjects.backgrounds.changeLocation(LOCATION, GameObjects.obstacles.imagesToTween);
+                }
+            });
+
+            /** Spawn obstacles */
+            this.addObstacles();
+        }
+    }
+
+    /**
+     * Pause game
+     */
     pause() {
         if (States.created) {
             this.scene.pause('Main');
@@ -463,6 +518,9 @@ class Main extends Phaser.Scene {
         }
     }
 
+    /**
+     * Resume game from pause menu
+     */
     resume() {
         if (States.created) {
             this.scene.resume('Main');
@@ -482,11 +540,14 @@ class Main extends Phaser.Scene {
         }
     }
 
+    /**
+     * Restart game
+     */
     restart() {
         if (States.created) {
             let UiScene = this.scene.get('Ui');
 
-            UiScene.setAnchorVisible(true);
+            UiScene.setBalanceHelperVisible(true);
 
             for (let item in Intervals) {
                 if (Intervals[item]) {
@@ -536,41 +597,9 @@ class Main extends Phaser.Scene {
         }
     }
 
-    start() {
-        let Ui = this.scene.get('Ui');
-
-        if (!States.started) {
-            States.started = true;
-
-            GameObjects.player.setStable(false);
-
-            /** Start counter */
-            Ui.startCounter();
-
-            /** Remove welcome tip */
-            Ui.removeTip();
-
-            /** Update location */
-            Intervals.location = this.time.addEvent({
-                loop: true,
-                delay: 50 * 1000,
-                callback: () => {
-                    LOCATION++;
-
-                    if (LOCATION > 2) {
-                        LOCATION = 0;
-                        Config.gravity++;
-                    }
-
-                    GameObjects.backgrounds.changeLocation(LOCATION, GameObjects.obstacles.imagesToTween);
-                }
-            });
-
-            /** Spawn obstacles */
-            this.addObstacles();
-        }
-    }
-
+    /**
+     * Start spawning obstacles
+     */
     addObstacles() {
         Intervals.obstacles = this.time.addEvent({
             delay: OBSTACLES_FREQUENCY * 1000,

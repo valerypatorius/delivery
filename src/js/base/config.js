@@ -6,5 +6,5 @@ export default {
     height: window.innerHeight,
     maxPlayerFallAngle: 75,
     gravity: 2,
-    mute: false
+    mute: true
 };
