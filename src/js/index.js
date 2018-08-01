@@ -15,6 +15,7 @@ const GAME_CONFIG = {
     type: Phaser.AUTO,
     width: Config.width,
     height: Config.height,
+    zoom: Config.scale,
     physics: {
         default: 'matter',
         matter: {
@@ -42,5 +43,3 @@ WebFont.load({
         new Phaser.Game(GAME_CONFIG);
     }
 });
-
-// new Phaser.Game(GAME_CONFIG);
