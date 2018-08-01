@@ -51,6 +51,10 @@ class Main extends Phaser.Scene {
 
     preload() {
         if (!States.loaded) {
+            this.load.image('overlay_start', './assets/start.jpg');
+            this.load.image('overlay_start_button', './assets/ui/start_button.png');
+            this.load.image('overlay_pause_button', './assets/ui/pause_button.png');
+
             this.load.image('pixel', './assets/pixel.png');
 
             /** Player body parts */
@@ -167,6 +171,14 @@ class Main extends Phaser.Scene {
     }
 
     create() {
+        /** Start overlay */
+        if (!States.created) {
+            this.cameras.main.alpha = 0;
+            GameObjects.activeOverlay = new Overlay('start', this);
+        } else {
+            this.start();
+        }
+
         let worldCenter = Config.width / 2;
         let worldMiddle = Config.height / 2;
 
@@ -250,57 +262,12 @@ class Main extends Phaser.Scene {
             D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
         };
 
-        // this.input.keyboard.on('keydown_ESC', () => this.pause());
-        // this.input.keyboard.on('keydown_M', () => {
-        //     Config.mute = !Config.mute;
-
-        //     this.sound.setMute(Config.mute);
-
-        //     let Ui = this.scene.get('Ui');
-        //     Ui.updateIcons();
-        // });
-
-        /** Fade camera in */
-        this.cameras.main.fadeIn(1000);
-
         /** Obstacles list (ladder x3 to increase spawn chance) */
         OBSTACLES = [
             'obstacle_ladder', 'obstacle_ladder', 'obstacle_ladder',
             'obstacle_ghosts_1', 'obstacle_ghosts_2', 'obstacle_ghosts_3',
             'obstacle_debree_1', 'obstacle_debree_2', 'obstacle_debree_3'
         ];
-
-        /** Play sounds */
-        AUDIO.intro = this.sound.add('intro', {
-            loop: false
-        });
-
-        AUDIO.loop = this.sound.add('loop', {
-            loop: true
-        });
-
-        this.sound.setMute(Config.mute);
-
-        AUDIO.intro.play();
-
-        AUDIO.loop.play({
-            delay: AUDIO.intro.duration
-        });
-
-        this.tweens.addCounter({
-            duration: 2000,
-            onUpdate: counter => {
-                let value = parseFloat(counter.getValue().toFixed(1));
-                this.sound.setVolume(value);
-            }
-        });
-
-        /** Launch ui */
-        if (!States.created) {
-            this.scene.launch('Ui');
-        }
-
-        States.created = true;
 
         /** Re-enable keyboard */
         document.removeEventListener('keydown', disableDefault);
@@ -325,11 +292,11 @@ class Main extends Phaser.Scene {
             if (CURSORS.right.isDown || KEYS.D.isDown) {
                 GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
 
-                this.start();
+                this.playGame();
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
                 GameObjects.player.top.setVelocity(-1.5, playerAngle > 0 ? velocityY : -velocityY);
 
-                this.start();
+                this.playGame();
             }
 
             /** Control balance with touch */
@@ -340,7 +307,7 @@ class Main extends Phaser.Scene {
                     GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
                 }
 
-                this.start();
+                this.playGame();
             }
 
             /** Update ui anchor angle */
@@ -457,10 +424,53 @@ class Main extends Phaser.Scene {
         }
     }
 
-    /**
-     * Start game
-     */
     start() {
+        if (GameObjects.activeOverlay) {
+            GameObjects.activeOverlay.destroy();
+        }
+
+        this.cameras.main.alpha = 1;
+
+        /** Launch ui */
+        if (!States.created) {
+            this.scene.launch('Ui');
+        }
+
+        /** Fade camera in */
+        this.cameras.main.fadeIn(1000);
+
+        /** Play sounds */
+        AUDIO.intro = this.sound.add('intro', {
+            loop: false
+        });
+
+        AUDIO.loop = this.sound.add('loop', {
+            loop: true
+        });
+
+        this.sound.setMute(Config.mute);
+
+        AUDIO.intro.play();
+
+        AUDIO.loop.play({
+            delay: AUDIO.intro.duration
+        });
+
+        this.tweens.addCounter({
+            duration: 2000,
+            onUpdate: counter => {
+                let value = parseFloat(counter.getValue().toFixed(1));
+                this.sound.setVolume(value);
+            }
+        });
+
+        States.created = true;
+    }
+
+    /**
+     * Play game
+     */
+    playGame() {
         let Ui = this.scene.get('Ui');
 
         if (!States.started) {

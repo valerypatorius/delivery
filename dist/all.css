@@ -71,6 +71,14 @@ p {
 .likely__icon svg {
   display: block;
 }
+@keyframes overlayShow {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 html {
   height: 100%;
 }
@@ -83,6 +91,9 @@ body {
   -ms-flex-align: center;
       align-items: center;
   overflow: hidden;
+}
+strong {
+  font-weight: 700;
 }
 #game canvas {
   transform-origin: 50% 0;
@@ -108,14 +119,101 @@ body {
   z-index: 20;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
   -ms-flex-align: center;
       align-items: center;
   -ms-flex-pack: center;
       justify-content: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: overlayShow 0.2s;
+  transform: translateZ(0);
+}
+.overlay--start {
+  background-color: #23221e;
+  display: block;
+}
+.overlay--start .overlayContent {
+  max-width: none;
+  position: relative;
+}
+.overlay--start .overlayContent:before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: url("../assets/start.jpg");
+  background-size: 200% auto;
+  background-position: 50% 0;
+  background-repeat: no-repeat;
+  background-attachment: local;
+  z-index: -1;
+}
+@media (min-width: 1024px) {
+  .overlay--start .overlayContent:before {
+    background-size: 100% auto;
+  }
 }
 .overlayContent {
   width: 100%;
   max-width: 960px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+}
+.start {
+  -ms-flex: 1;
+      flex: 1;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  padding: 30px 15px;
+  text-align: center;
+}
+@media (min-width: 1024px) {
+  .start {
+    padding: 80px 50px 50px;
+  }
+}
+.start__about {
+  max-width: 860px;
+  font-size: 16px;
+  line-height: 1.6em;
+  margin-top: 80%;
+  margin-bottom: 30px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 1024px) {
+  .start__about {
+    font-size: 22px;
+    line-height: 1.6em;
+    margin-top: 37%;
+    margin-bottom: 30px;
+  }
+}
+.start__button {
+  width: 240px;
+  height: 62px;
+  font-size: 22px;
+  font-weight: 700;
+  background-image: url("../assets/ui/start_button.png");
+  background-repeat: no-repeat;
+  background-position: 50% 0;
+  background-color: transparent;
+  margin: 0 auto;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.start__button:hover,
+.start__button:focus {
+  background-position: 50% 100%;
 }
 .pause {
   max-width: 421px;

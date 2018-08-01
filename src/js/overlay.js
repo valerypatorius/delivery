@@ -43,7 +43,11 @@ class Overlay {
      * Append overlay
      */
     init() {
-        this.el = makeElement('div', 'overlay');
+        this.el = makeElement('div', ['overlay']);
+
+        if (this.type === 'start') {
+            this.el.classList.add('overlay--start');
+        }
 
         this.makeContent();
 
@@ -74,9 +78,38 @@ class Overlay {
      */
     makeContent() {
         switch (this.type) {
+            case 'start':
+                this.makeStart();
+                break;
+
             case 'pause':
                 this.makePause();
         }
+    }
+
+    makeStart() {
+        this.content = makeElement('div', 'overlayContent');
+
+        let start = makeElement('div', 'start');
+
+        // let logo = makeElement('div', 'start__logo');
+        // start.appendChild(logo);
+
+        let about = makeElement('div', 'start__about', {
+            innerHTML: 'Пройди как можно дальше, удерживая баланс и&nbsp;не падая, чтобы занять одно из первых <strong>10&nbsp;мест</strong> в&nbsp;турнирной таблице. Если окажешься среди победителей&nbsp;— получишь промо-код в&nbsp;<strong>Delivery Club на 3000&nbsp;рублей</strong>.'
+        });
+        start.appendChild(about);
+
+        let button = makeElement('button', 'start__button', {
+            innerHTML: 'Вперёд',
+            data: {
+                click: 'startGame'
+            }
+        });
+        start.appendChild(button);
+
+        this.content.appendChild(start);
+        this.el.appendChild(this.content);
     }
 
     /**
@@ -132,6 +165,13 @@ class Overlay {
 
         this.content.appendChild(pause);
         this.el.appendChild(this.content);
+    }
+
+    /**
+     * Start main scene
+     */
+    startGame() {
+        this.scene.start();
     }
 
     /**

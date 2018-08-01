@@ -30,11 +30,6 @@ const GAME_CONFIG = {
     scene: [Main, Pause, Ui]
 };
 
-/** Preload some UI images */
-preloadImages([
-    './assets/ui/pause_button.png'
-]);
-
 WebFont.load({
     google: {
         families: ['Montserrat:400,500,700:cyrillic']
