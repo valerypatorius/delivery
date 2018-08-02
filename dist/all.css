@@ -97,6 +97,7 @@ strong {
 }
 #game canvas {
   transform-origin: 50% 0;
+  cursor: default !important;
 }
 .noise {
   width: 100%;
@@ -181,6 +182,18 @@ strong {
   .start {
     padding: 80px 50px 50px;
   }
+}
+.start__logos {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: justify;
+      justify-content: space-between;
 }
 .start__about {
   max-width: 860px;

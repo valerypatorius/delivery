@@ -3,5 +3,6 @@ export default {
     created: false,
     started: false,
     paused: false,
-    stopped: false
+    stopped: false,
+    dropped: false
 };

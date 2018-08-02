@@ -20,20 +20,6 @@ class Ui extends Phaser.Scene {
         });
     }
 
-    preload() {
-        this.load.image('pause', './assets/ui/pause.png');
-
-        this.load.spritesheet('sound', './assets/ui/sound.png', {
-            frameWidth: 62,
-            frameHeight: 52
-        });
-
-        this.load.image('balance_line', './assets/ui/balance_line.png');
-        this.load.image('balance_anchor', './assets/ui/balance_anchor.png');
-
-        this.load.image('arrows', './assets/ui/arrows.png');
-    }
-
     create() {
         let worldCenter = Config.width / 2;
         let worldMiddle = Config.height / 2;
@@ -104,9 +90,6 @@ class Ui extends Phaser.Scene {
         /** Balance helper */
         BALANCE_HELPER.line = this.add.image(worldCenter, Config.height - 400, 'balance_line').setOrigin(0.5, 1);
         BALANCE_HELPER.anchor = this.add.image(worldCenter, Config.height - 365, 'balance_anchor').setOrigin(0.5, 1);
-
-        /** Start tip */
-        this.addTip('start');
 
         /** Listen for keys pressings */
         this.input.keyboard.on('keydown_ESC', () => MainScene.pause());

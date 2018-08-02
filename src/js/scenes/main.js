@@ -139,13 +139,25 @@ class Main extends Phaser.Scene {
             }
 
             /** Sounds */
-            this.load.audio('intro', [
-                './assets/audio/intro.mp3'
-            ]);
+            path = './assets/audio';
 
-            this.load.audio('loop', [
-                './assets/audio/loop.mp3'
-            ]);
+            this.load.audio('intro', `${path}/intro.mp3`);
+            this.load.audio('loop', `${path}/loop.mp3`);
+
+            /** Ui */
+            path = './assets/ui';
+
+            this.load.image('pause', `${path}/pause.png`);
+
+            this.load.spritesheet('sound', `${path}/sound.png`, {
+                frameWidth: 62,
+                frameHeight: 52
+            });
+
+            this.load.image('balance_line', `${path}/balance_line.png`);
+            this.load.image('balance_anchor', `${path}/balance_anchor.png`);
+
+            this.load.image('arrows', `${path}/arrows.png`);
 
             /** Show load progress */
             let text = this.make.text({
@@ -255,12 +267,12 @@ class Main extends Phaser.Scene {
         }
 
         /** Controls */
-        CURSORS = this.input.keyboard.createCursorKeys();
-        POINTER = this.input.pointer1;
-        KEYS = {
-            A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-            D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
-        };
+        // CURSORS = this.input.keyboard.createCursorKeys();
+        // POINTER = this.input.pointer1;
+        // KEYS = {
+        //     A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        //     D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+        // };
 
         /** Obstacles list (ladder x3 to increase spawn chance) */
         OBSTACLES = [
@@ -277,7 +289,7 @@ class Main extends Phaser.Scene {
         let worldCenter = Config.width / 2;
         let worldMiddle = Config.height / 2;
 
-        if (!States.stopped && !States.paused) {
+        if (!States.stopped && !States.paused && States.created) {
 
             let playerAngle = GameObjects.player.top.angle;
 
@@ -375,7 +387,9 @@ class Main extends Phaser.Scene {
 
                     let isTouchedGround = bodyA.id === GameObjects.ground.instance.id;
 
-                    if (isTouchedGround) {
+                    if (isTouchedGround && !States.dropped) {
+                        States.dropped = true;
+
                         this.tweens.pauseAll();
 
                         DEATH_TIMEOUT = setTimeout(() => {
@@ -433,29 +447,64 @@ class Main extends Phaser.Scene {
 
         /** Launch ui */
         if (!States.created) {
+            let Ui = this.scene.get('Ui');
             this.scene.launch('Ui');
+
+            Ui.addTip('start');
         }
 
         /** Fade camera in */
         this.cameras.main.fadeIn(1000);
 
         /** Play sounds */
-        AUDIO.intro = this.sound.add('intro', {
-            loop: false
-        });
-
-        AUDIO.loop = this.sound.add('loop', {
-            loop: true
-        });
+        AUDIO.intro = this.sound.add('intro');
+        AUDIO.loop_1 = this.sound.add('loop');
+        AUDIO.loop_2 = this.sound.add('loop');
 
         this.sound.setMute(Config.mute);
 
-        AUDIO.intro.play();
+        AUDIO.intro.on('play', () => {
+            if (Intervals.music) {
+                Intervals.music.remove();
+            }
 
-        AUDIO.loop.play({
-            delay: AUDIO.intro.duration
+            Intervals.music = this.time.addEvent({
+                delay: (AUDIO.intro.duration - 6) * 1000,
+                callback: () => {
+                    AUDIO.loop_1.play();
+                }
+            });
         });
 
+        AUDIO.intro.play();
+
+        AUDIO.loop_1.on('play', () => {
+            if (Intervals.music) {
+                Intervals.music.remove();
+            }
+
+            Intervals.music = this.time.addEvent({
+                delay: (AUDIO.loop_1.duration - 6) * 1000,
+                callback: () => {
+                    AUDIO.loop_2.play();
+                }
+            });
+        });
+
+        AUDIO.loop_2.on('play', () => {
+            if (Intervals.music) {
+                Intervals.music.remove();
+            }
+
+            Intervals.music = this.time.addEvent({
+                delay: (AUDIO.loop_2.duration - 6) * 1000,
+                callback: () => {
+                    AUDIO.loop_1.play();
+                }
+            });
+        });
+
+        /** Fade sound on start */
         this.tweens.addCounter({
             duration: 2000,
             onUpdate: counter => {
@@ -463,6 +512,14 @@ class Main extends Phaser.Scene {
                 this.sound.setVolume(value);
             }
         });
+
+        /** Enable controls */
+        CURSORS = this.input.keyboard.createCursorKeys();
+        POINTER = this.input.pointer1;
+        KEYS = {
+            A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+        };
 
         States.created = true;
     }

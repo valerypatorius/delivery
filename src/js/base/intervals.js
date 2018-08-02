@@ -1,5 +1,6 @@
 export default {
     location: null,
     obstacles: null,
-    counter: null
+    counter: null,
+    music: null
 };

@@ -92,8 +92,30 @@ class Overlay {
 
         let start = makeElement('div', 'start');
 
-        // let logo = makeElement('div', 'start__logo');
-        // start.appendChild(logo);
+        let logos = makeElement('div', 'start__logos');
+
+        let logosList = [
+            {
+                href: 'https://dtf.ru',
+                icon: Svg.dtf
+            },
+            {
+                href: 'https://www.delivery-club.ru/',
+                icon: Svg.delivery
+            }
+        ];
+
+        logosList.forEach(logo => {
+            let a = makeElement('a', [], {
+                target: '_blank',
+                href: logo.href,
+                innerHTML: logo.icon
+            });
+
+            logos.appendChild(a);
+        });
+
+        start.appendChild(logos);
 
         let about = makeElement('div', 'start__about', {
             innerHTML: 'Пройди как можно дальше, удерживая баланс и&nbsp;не падая, чтобы занять одно из первых <strong>10&nbsp;мест</strong> в&nbsp;турнирной таблице. Если окажешься среди победителей&nbsp;— получишь промо-код в&nbsp;<strong>Delivery Club на 3000&nbsp;рублей</strong>.'
@@ -110,6 +132,8 @@ class Overlay {
 
         this.content.appendChild(start);
         this.el.appendChild(this.content);
+
+        this.scene.input.keyboard.once('keydown_ENTER', () => this.startGame());
     }
 
     /**
