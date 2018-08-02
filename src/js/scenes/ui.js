@@ -135,13 +135,14 @@ class Ui extends Phaser.Scene {
 
     /**
      * Sync balance helper's angle with player's body
-     * @param {Number} angle
+     * @param {Number} angle - current player's angle
+     * @param {Number} gravity - current vertical gravity
      */
-    updateBalanceHelper(angle) {
+    updateBalanceHelper(angle, gravity) {
         if (BALANCE_HELPER.anchor) {
             // BALANCE_HELPER.anchor.setAngle(angle*0.799);
 
-            let helperAngle = angle * 1.53;
+            let helperAngle = angle * 0.799 * gravity;
             let criticalAngle = 63;
 
             if (helperAngle > criticalAngle) {

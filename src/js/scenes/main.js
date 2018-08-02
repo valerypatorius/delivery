@@ -331,7 +331,7 @@ class Main extends Phaser.Scene {
 
             /** Update ui anchor angle */
             let UiScene = this.scene.get('Ui');
-            UiScene.updateBalanceHelper(playerAngle);
+            UiScene.updateBalanceHelper(playerAngle, this.matter.world.localWorld.gravity.y);
 
             /** If fall angle is too large, drop player and end the game */
             let isFallAngle = 0;
