@@ -51,9 +51,17 @@ class Main extends Phaser.Scene {
 
     preload() {
         if (!States.loaded) {
+            let progressBar = this.add.graphics();
+
+
             this.load.image('overlay_start', './assets/start.jpg');
             this.load.image('overlay_start_button', './assets/ui/start_button.png');
             this.load.image('overlay_pause_button', './assets/ui/pause_button.png');
+            this.load.image('overlay_restart_button', './assets/ui/restart_button.png');
+            this.load.image('overlay_fb_button', './assets/ui/fb_button.png');
+            this.load.image('overlay_vk_button', './assets/ui/vk_button.png');
+            this.load.image('overlay_twitter_button', './assets/ui/twitter_button.png');
+            this.load.image('overlay_result', './assets/result.jpg');
 
             this.load.image('pixel', './assets/pixel.png');
 
@@ -162,19 +170,25 @@ class Main extends Phaser.Scene {
             /** Show load progress */
             let text = this.make.text({
                 x: Config.width / 2,
-                y: Config.height / 2,
+                y: Config.height / 2 + 50,
                 text: '0%',
                 style: {
-                    font: '700 18px Montserrat',
+                    font: '700 22px Montserrat',
                     fill: Colors.hex.white
-                }
+                },
+                resolution: 1
             }).setOrigin(0.5, 0.5);
 
             this.load.on('progress', value => {
+                progressBar.clear();
+                progressBar.fillStyle(Colors.green, 1);
+                progressBar.fillRect(50, Config.height /2, (Config.width - 100) * value, 2);
+
                 text.setText(parseInt(value * 100) + '%');
             });
 
             this.load.on('complete', () => {
+                progressBar.destroy();
                 text.destroy();
             });
 
@@ -266,14 +280,6 @@ class Main extends Phaser.Scene {
             });
         }
 
-        /** Controls */
-        // CURSORS = this.input.keyboard.createCursorKeys();
-        // POINTER = this.input.pointer1;
-        // KEYS = {
-        //     A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-        //     D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
-        // };
-
         /** Obstacles list (ladder x3 to increase spawn chance) */
         OBSTACLES = [
             'obstacle_ladder', 'obstacle_ladder', 'obstacle_ladder',
@@ -298,15 +304,16 @@ class Main extends Phaser.Scene {
             GameObjects.player.flashlight.anims.play('flashlight', true);
 
             /** Control balance with keyboard */
+            // let deltaY = 0;
             let deltaY = Math.abs(Math.round(playerAngle / 10));
-            let velocityY = 1.5 / (deltaY !== 0 ? deltaY : 2);
+            let velocityY = 1 / (deltaY !== 0 ? deltaY : 2);
 
             if (CURSORS.right.isDown || KEYS.D.isDown) {
                 GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
 
                 this.playGame();
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
-                GameObjects.player.top.setVelocity(-1.5, playerAngle > 0 ? velocityY : -velocityY);
+                GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
 
                 this.playGame();
             }
@@ -314,7 +321,7 @@ class Main extends Phaser.Scene {
             /** Control balance with touch */
             if (POINTER.isDown) {
                 if (POINTER.worldX < Config.width / 2) {
-                    GameObjects.player.top.setVelocity(-1.5, playerAngle > 0 ? velocityY : -velocityY);
+                    GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
                 } else if (POINTER.worldX >= Config.width / 2) {
                     GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
                 }
@@ -427,7 +434,7 @@ class Main extends Phaser.Scene {
                                 duration: 1500,
                                 delay: 1300,
                                 onComplete: () => {
-                                    // TODO: SHOW FINAL OVERLAY
+                                    this.finish();
                                 }
                             });
                         }, 500);
@@ -655,6 +662,7 @@ class Main extends Phaser.Scene {
             States.paused = false;
             States.started = false;
             States.stopped = false;
+            States.dropped = false;
 
             if (GameObjects.activeOverlay){
                 GameObjects.activeOverlay.destroy();
@@ -662,6 +670,12 @@ class Main extends Phaser.Scene {
 
             this.scene.setVisible(true, 'Ui');
         }
+    }
+
+    finish() {
+        this.scene.setVisible(false, 'Ui');
+
+        GameObjects.activeOverlay = new Overlay('result', this);
     }
 
     /**

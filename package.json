@@ -33,6 +33,7 @@
     "webpack": "^3.11.0"
   },
   "dependencies": {
+    "cmtt-likely": "^1.2.1",
     "phaser": "^3.11.0",
     "webfontloader": "^1.6.28"
   }

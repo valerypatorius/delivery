@@ -106,7 +106,7 @@ class Ui extends Phaser.Scene {
                 SCORE = Intervals.counter.getElapsedSeconds().toFixed(2);
             }
 
-            COUNTER.setText(SCORE + 'м');
+            COUNTER.setText(SCORE + ' м');
         }
     }
 
@@ -122,6 +122,10 @@ class Ui extends Phaser.Scene {
         }
     }
 
+    getCounterValue() {
+        return (SCORE || 0) + '&nbsp;м';
+    }
+
     /**
      * Update ui icons (e.g. when sound is muted)
      */
@@ -135,7 +139,22 @@ class Ui extends Phaser.Scene {
      */
     updateBalanceHelper(angle) {
         if (BALANCE_HELPER.anchor) {
-            BALANCE_HELPER.anchor.setAngle(angle*0.799);
+            // BALANCE_HELPER.anchor.setAngle(angle*0.799);
+
+            let helperAngle = angle * 1.53;
+            let criticalAngle = 63;
+
+            if (helperAngle > criticalAngle) {
+                helperAngle = criticalAngle;
+                BALANCE_HELPER.anchor.setTint(Colors.red);
+                BALANCE_HELPER.line.setTint(Colors.red);
+            } else if (helperAngle < -criticalAngle) {
+                helperAngle = -criticalAngle;
+                BALANCE_HELPER.anchor.setTint(Colors.red);
+                BALANCE_HELPER.line.setTint(Colors.red);
+            }
+
+            BALANCE_HELPER.anchor.setAngle(helperAngle);
         }
     }
 

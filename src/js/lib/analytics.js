@@ -1,4 +1,4 @@
-import Config from '../config';
+import Config from '../base/config';
 
 const CONSOLE_STYLE = 'color: #E87E04';
 

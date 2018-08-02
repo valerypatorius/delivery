@@ -1,7 +1,7 @@
 import Likely from 'cmtt-likely';
 
-import { makeElement } from './dom';
-import * as Analytics from './analytics';
+import { makeElement } from '../lib/dom';
+import * as Analytics from '../lib/analytics';
 
 const CSS = {
     likely: 'likely',

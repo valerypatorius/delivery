@@ -83,11 +83,24 @@ strong
                 @media $mq.not_mobile
                     background-size: 100% auto
 
+    &--result
+        display: block
+
+        .overlayContent
+            margin: 0 auto
+            position: relative
+            min-height: 100vh
+            display: flex
+            flex-direction: column
+
 .overlayContent
     width: 100%
-    max-width: 960px
+    max-width: 480px
     display: flex
     flex-direction: column
+
+    @media $mq.not_mobile
+        max-width: 960px
 
 .start
     flex: 1
@@ -100,14 +113,17 @@ strong
         padding: 80px 50px 50px
 
     &__logos
-        box-sizing: border-box
-        width: 100%
-        padding: 30px
-        position: absolute
-        top: 0
-        left: 0
-        display: flex
-        justify-content: space-between
+        display: none
+
+        @media $mq.not_mobile
+            box-sizing: border-box
+            width: 100%
+            padding: 30px
+            position: absolute
+            top: 0
+            left: 0
+            display: flex
+            justify-content: space-between
 
     &__about
         max-width: 860px
@@ -172,3 +188,310 @@ strong
         &:hover,
         &:focus
             background-position: 50% 100%
+
+.result,
+.resultTable
+    background-color: #282a2c
+    color: #fff
+    margin-top: auto
+    margin-bottom: auto
+
+    &.state--hidden
+        display: none
+
+.resultHeader
+    box-sizing: border-box
+    padding: 15px
+    min-height: 320px
+    background-image: url('../assets/result.jpg')
+    background-repeat: no-repeat
+    background-size: auto 160px
+    background-position: 100% 0
+
+    @media $mq.not_mobile
+        padding: 40px 50px
+        background-position: 100% 0
+        display: flex
+        flex-direction: column
+        background-size: auto 320px
+
+    &__title
+        font-size: 32px
+        line-height: 1.3em
+        font-weight: 700
+        margin-top: 160px
+        margin-bottom: 20px
+
+        @media $mq.not_mobile
+            font-size: 52px
+            margin-top: 0
+            margin-bottom: 0
+
+    &__actions
+
+        @media $mq.not_mobile
+            margin-top: auto
+            display: flex
+
+    &__restart
+        width: 222px
+        height: 48px
+        background-image: url('../assets/ui/restart_button.png')
+        background-repeat: no-repeat
+        background-position: 50% 0
+        background-color: transparent
+        color: $colors.black
+        font-size: 18px
+        font-weight: 700
+
+        &:hover
+            background-position: 50% 100%
+
+        svg
+            display: inline-block
+            vertical-align: middle
+            margin-top: -4px
+            width: 16px
+            height: 16px
+            margin-right: 10px
+
+.resultPromo
+    padding: 30px 15px 30px
+
+    @media $mq.not_mobile
+        padding: 20px 50px 40px
+
+    &__table
+        font-size: 22px
+        line-height: 1.4em
+        font-weight: 700
+        margin-bottom: 35px
+
+        svg
+            display: inline-block
+            vertical-align: middle
+            margin-top: -4px
+            margin-right: 12px
+
+        span
+            border-bottom: 1px dotted rgba($colors.white, 0.7)
+            cursor: pointer
+
+            &:hover
+                color: $colors.green
+                border-bottom-color: @color
+
+    &__text
+        margin-bottom: 20px
+
+    &__code
+        font-size: 25px
+        line-height: 1.4em
+        font-weight: 700
+
+        .highlight
+            color: $colors.green
+
+    &__note
+        font-size: 14px
+        line-height: 1.6em
+
+    &__link
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 421px
+        height: 62px
+        font-size: 22px
+        font-weight: 700
+        background-image: url('../assets/ui/pause_button.png')
+        background-repeat: no-repeat
+        background-position: 50% 0
+        background-color: transparent
+        color: $colors.black
+        margin-top: 35px
+
+        @media $mq.mobile
+            width: 222px
+            height: 48px
+            background-image: url('../assets/ui/restart_button.png')
+            background-repeat: no-repeat
+            background-position: 50% 0
+            background-color: transparent
+            color: $colors.black
+            font-size: 18px
+            font-weight: 700
+            margin-top: 25px
+
+            span
+                display: none
+
+        &:hover
+            background-position: 50% 100%
+
+.likely
+    margin-right: 25px
+
+    @media $mq.mobile
+        margin-bottom: 8px
+        margin-right: 0
+
+    &__widget
+        width: 48px
+        height: 48px
+        background-repeat: no-repeat
+        background-position: 50% 0
+        background-color: transparent
+        font-size: 18px
+        font-weight: 700
+
+        &:not(:last-child)
+            margin-right: 7px
+
+        &:hover
+            background-position: 50% 100%
+
+        &--facebook
+            width: 177px
+            background-image: url('../assets/ui/fb_button.png')
+
+        &--vkontakte
+            background-image: url('../assets/ui/vk_button.png')
+
+        &--twitter
+            background-image: url('../assets/ui/twitter_button.png')
+
+    &__icon
+        svg
+            width: 22px
+            height: 22px
+
+        &--facebook
+            margin-right: 12px
+
+        &--vkontakte
+            svg
+                width: 26px
+                height: 26px
+
+.resultTable
+    padding: 30px 0
+
+    @media $mq.not_mobile
+        padding: 40px 50px 50px
+
+    &__title
+        font-size: 32px
+        line-height: 1.3em
+        font-weight: 700
+        margin-bottom: 30px
+        padding: 0 15px
+
+        @media $mq.not_mobile
+            font-size: 52px
+            padding: 0
+            display: flex
+            align-items: center
+
+    &__back
+        width: 222px
+        height: 48px
+        background-image: url('../assets/ui/restart_button.png')
+        background-repeat: no-repeat
+        background-position: 50% 0
+        background-color: transparent
+        color: $colors.black
+        font-size: 18px
+        font-weight: 700
+
+        @media $mq.not_mobile
+            margin-left: auto
+
+        @media $mq.mobile
+            margin-top: 15px
+
+        &:hover
+            background-position: 50% 100%
+
+        svg
+            display: inline-block
+            vertical-align: middle
+            margin-top: -4px
+            width: 16px
+            height: 16px
+            margin-right: 10px
+
+.table
+    display: flex
+    flex-direction: column
+    font-size: 14px
+    line-height: 1.5em
+    font-weight: 500
+    display: table
+    table-layout: auto
+    width: 100%
+
+    @media $mq.not_mobile
+        font-size: 20px
+
+    &__header
+        display: table-row
+        font-weight: 700
+
+        @media $mq.mobile
+            display: none
+
+        .table__cell
+            padding: 5px 0
+
+    &__row
+        display: table-row
+
+        &:nth-child(2n)
+            background-color: #5a5e62
+
+        &:nth-child(2n+1)
+            background-color: #3f4246
+
+        .table__cell
+            &:first-child
+                padding-left: 10px
+
+                @media $mq.not_mobile
+                    padding-left: 20px
+
+    &__cell
+        display: table-cell
+        padding-top: 11px
+        padding-bottom: 11px
+        padding-right: 10px
+
+        @media $mq.not_mobile
+            padding-right: 60px
+
+        &:nth-child(2)
+            @media $mq.mobile
+                display: none
+
+        &:nth-child(3)
+            width: 100%
+
+.tablePagination
+    display: flex
+    flex-wrap: wrap
+    justify-content: center
+    font-size: 20px
+    line-height: 1em
+    font-weight: 700
+    padding: 20px 15px 0
+
+    &__item
+        cursor: pointer
+        padding: 10px 15px
+
+        &:hover
+            color: $colors.green
+
+        &.state--active
+            cursor: default
+            color: $colors.green
