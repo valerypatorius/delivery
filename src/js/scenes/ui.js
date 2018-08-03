@@ -185,7 +185,7 @@ class Ui extends Phaser.Scene {
 
             if (!isMobile()) {
                 TIP.start = this.make.text({
-                    x: x - 175,
+                    x: x - 177,
                     y: y - 40,
                     text: 'Используй',
                     style: {
@@ -195,7 +195,7 @@ class Ui extends Phaser.Scene {
                 }).setOrigin(0.5, 1);
 
                 TIP.end = this.make.text({
-                    x: x + 180,
+                    x: x + 185,
                     y: y - 40,
                     text: ', чтобы держать равновесие',
                     style: {
@@ -205,6 +205,26 @@ class Ui extends Phaser.Scene {
                 }).setOrigin(0.5, 1);
 
                 TIP.icon = this.add.image(x - 55, y - 53, 'arrows');
+
+                this.tweens.add({
+                    targets: TIP.icon,
+                    scale: 5,
+                    duration: 3000,
+                    ease: 'Power2',
+                    loop: 2
+                });
+
+                this.tweens.addCounter({
+                    from: 0.9,
+                    to: 1.2,
+                    duration: 1200,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Quad.easeInOut',
+                    onUpdate: (counter, value) => {
+                        TIP.icon.setScale(value.value);
+                    }
+                });
             } else {
                 TIP.text = this.make.text({
                     x: Config.width / 2,
@@ -223,6 +243,19 @@ class Ui extends Phaser.Scene {
 
                 TIP.iconRight = this.add.image(Config.width - 50, y - 200, 'tap_right');
                 TIP.iconLeft = this.add.image(50, y - 200, 'tap_right').setFlipX(true);
+
+                this.tweens.addCounter({
+                    from: 0.9,
+                    to: 1.5,
+                    duration: 1200,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Quad.easeInOut',
+                    onUpdate: (counter, value) => {
+                        TIP.iconRight.setScale(value.value);
+                        TIP.iconLeft.setScale(value.value);
+                    }
+                });
             }
 
         }
