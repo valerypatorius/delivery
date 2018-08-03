@@ -243,7 +243,7 @@ class Overlay {
         resultPromo.appendChild(resultPromoTable);
 
         let resultPromoText = makeElement('div', 'resultPromo__text', {
-            innerHTML: 'Хорошо, что в&nbsp;реальности всё иначе, чем в&nbsp;играх. Курьеры Delivery Express не застревают на ровном месте, слушают только весёлую музыку и&nbsp;используют велосипеды и мопеды, чтобы доставить вам обед максимально быстро.'
+            innerHTML: 'Курьеры Delivery Express не застревают на ровном месте, слушают только весёлую музыку и&nbsp;используют велосипеды и мопеды, чтобы доставить обед максимально быстро.'
         });
         resultPromo.appendChild(resultPromoText);
 
