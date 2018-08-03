@@ -235,6 +235,11 @@ strong {
     margin-bottom: 30px;
   }
 }
+@media (max-width: 374px) {
+  .start__about {
+    font-size: 14px;
+  }
+}
 .start__button {
   width: 240px;
   height: 62px;
@@ -247,6 +252,12 @@ strong {
   margin: 0 auto;
   -ms-flex-negative: 0;
       flex-shrink: 0;
+}
+@media (max-width: 1023px) {
+  .start__button {
+    transform-origin: 50% 0;
+    transform: scale(0.8);
+  }
 }
 .start__button:hover,
 .start__button:focus {

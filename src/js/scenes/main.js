@@ -320,7 +320,7 @@ class Main extends Phaser.Scene {
             }
 
             /** Control balance with touch */
-            if (POINTER.isDown) {
+            if (POINTER.isDown && POINTER.worldY > 150) {
                 if (POINTER.worldX < Config.width / 2) {
                     GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
                 } else if (POINTER.worldX >= Config.width / 2) {
