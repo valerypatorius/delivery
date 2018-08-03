@@ -1,6 +1,7 @@
 import Config from '../base/config';
 import Colors from '../base/colors';
 import Intervals from '../base/intervals';
+import { isMobile } from '../lib/check';
 
 let BUTTONS = {
     pause: null,
@@ -153,6 +154,10 @@ class Ui extends Phaser.Scene {
                 helperAngle = -criticalAngle;
                 BALANCE_HELPER.anchor.setTint(Colors.red);
                 BALANCE_HELPER.line.setTint(Colors.red);
+            } else {
+                helperAngle = helperAngle;
+                BALANCE_HELPER.anchor.clearTint();
+                BALANCE_HELPER.line.clearTint();
             }
 
             BALANCE_HELPER.anchor.setAngle(helperAngle);
@@ -177,27 +182,49 @@ class Ui extends Phaser.Scene {
         let y = Config.height;
 
         if (type === 'start') {
-            TIP.start = this.make.text({
-                x: x - 175,
-                y: y - 40,
-                text: 'Используй',
-                style: {
-                    font: '500 26px Montserrat',
-                    fill: Colors.hex.white
-                }
-            }).setOrigin(0.5, 1);
 
-            TIP.end = this.make.text({
-                x: x + 180,
-                y: y - 40,
-                text: ', чтобы держать равновесие',
-                style: {
-                    font: '500 26px Montserrat',
-                    fill: Colors.hex.white
-                }
-            }).setOrigin(0.5, 1);
+            if (!isMobile()) {
+                TIP.start = this.make.text({
+                    x: x - 175,
+                    y: y - 40,
+                    text: 'Используй',
+                    style: {
+                        font: '500 26px Montserrat',
+                        fill: Colors.hex.white
+                    }
+                }).setOrigin(0.5, 1);
 
-            TIP.icon = this.add.image(x - 55, y - 53, 'arrows');
+                TIP.end = this.make.text({
+                    x: x + 180,
+                    y: y - 40,
+                    text: ', чтобы держать равновесие',
+                    style: {
+                        font: '500 26px Montserrat',
+                        fill: Colors.hex.white
+                    }
+                }).setOrigin(0.5, 1);
+
+                TIP.icon = this.add.image(x - 55, y - 53, 'arrows');
+            } else {
+                TIP.text = this.make.text({
+                    x: Config.width / 2,
+                    y: y - 30,
+                    text: 'Нажимай на экран, чтобы держать равновесие',
+                    style: {
+                        font: '500 26px Montserrat',
+                        fill: Colors.hex.white,
+                        align: 'center',
+                        wordWrap: {
+                            width: Config.width - 30,
+                            useAdvancedWrap: true
+                        }
+                    }
+                }).setOrigin(0.5, 1);
+
+                TIP.iconRight = this.add.image(Config.width - 50, y - 200, 'tap_right');
+                TIP.iconLeft = this.add.image(50, y - 200, 'tap_right').setFlipX(true);
+            }
+
         }
     }
 

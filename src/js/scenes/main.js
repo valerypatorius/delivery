@@ -166,6 +166,7 @@ class Main extends Phaser.Scene {
             this.load.image('balance_anchor', `${path}/balance_anchor.png`);
 
             this.load.image('arrows', `${path}/arrows.png`);
+            this.load.image('tap_right', `${path}/tap_right.png`);
 
             /** Show load progress */
             let text = this.make.text({

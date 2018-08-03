@@ -37,7 +37,7 @@ strong
     top: 0
     left: 0
     z-index: 10
-    opacity: 0.5
+    opacity: 0.4
 
 .overlay
     width: 100%
@@ -137,7 +137,7 @@ strong
         @media $mq.not_mobile
             font-size: 22px
             line-height: 1.6em
-            margin-top: 37%
+            margin-top: auto
             margin-bottom: 30px
 
     &__button
@@ -159,6 +159,9 @@ strong
 .pause
     max-width: 421px
     margin: 0 auto
+
+    @media $mq.mobile
+        transform: scale(0.8)
 
     &__title
         font-size: 52px

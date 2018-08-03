@@ -108,7 +108,7 @@ strong {
   top: 0;
   left: 0;
   z-index: 10;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 .overlay {
   width: 100%;
@@ -230,7 +230,7 @@ strong {
   .start__about {
     font-size: 22px;
     line-height: 1.6em;
-    margin-top: 37%;
+    margin-top: auto;
     margin-bottom: 30px;
   }
 }
@@ -254,6 +254,11 @@ strong {
 .pause {
   max-width: 421px;
   margin: 0 auto;
+}
+@media (max-width: 1023px) {
+  .pause {
+    transform: scale(0.8);
+  }
 }
 .pause__title {
   font-size: 52px;

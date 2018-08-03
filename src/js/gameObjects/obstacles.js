@@ -11,7 +11,7 @@ class Obstacles {
 
         this.imagesToTween = [];
 
-        this.isCssOverlsySupported = CSS.supports('mix-blend-mode', 'overlay') || false;
+        this.isCssOverlaySupported = CSS.supports('mix-blend-mode', 'overlay') || false;
         this.noise = makeElement('div', 'noise');
     }
 
@@ -49,9 +49,9 @@ class Obstacles {
                     } else if (params.texture.match(/obstacle_ladder/)) {
                         this.game.matter.world.setGravity(0, Config.gravity + 2);
                     } else {
-                        this.game.matter.world.setGravity(0, Config.gravity + 2);
+                        this.game.matter.world.setGravity(0, Config.gravity + 1.5);
 
-                        if (this.isCssOverlsySupported) {
+                        if (this.isCssOverlaySupported) {
                             document.body.appendChild(this.noise);
                         } else {
                             this.game.time.addEvent({
