@@ -109,6 +109,7 @@ strong {
   left: 0;
   z-index: 10;
   opacity: 0.4;
+  pointer-events: none;
 }
 .overlay {
   width: 100%;
