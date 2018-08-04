@@ -4,6 +4,7 @@ import { makeElement, removeElement, isElementInDom } from './lib/dom';
 import * as Share from './lib/share';
 import Config from './base/config';
 import ResultsTable from './resultsTable';
+import Request from './lib/request';
 
 let BUTTONS = null;
 
@@ -14,6 +15,9 @@ class Overlay {
         this.params = params;
         this.el = null;
         this.content = null;
+
+        this.authData = null;
+        this.authWindow = null;
 
         if (GameObjects.activeOverlay && isElementInDom(GameObjects.activeOverlay)) {
             removeElement(GameObjects.activeOverlay);
@@ -41,6 +45,30 @@ class Overlay {
             this[action](event.target, event);
         }
     }
+
+    storageEventHandler() {
+        if (parseInt(localStorage.logged_in) === 1) {
+            localStorage.removeItem('logged_in');
+
+            this.checkAuth(() => {
+                if (this.authData) {
+                    let button = document.querySelector('[data-click="showAuthWindow"]');
+
+                    if (button) {
+                        button.dataset.click = 'showResultsTable';
+                    }
+
+                    this.hideAuthWindow();
+                    this.showResultsTable();
+                }
+            });
+        }
+
+        if (localStorage.auth_error) {
+            console.log('Auth error', localStorage.auth_error);
+            localStorage.removeItem('auth_error');
+        }
+    };
 
     /**
      * Append overlay
@@ -238,9 +266,24 @@ class Overlay {
         result.appendChild(resultPromo);
 
         let resultPromoTable = makeElement('div', 'resultPromo__table', {
-            innerHTML: Svg.cup + 'Найти результат в&nbsp;<span data-click="showResultsTable">турнирной таблице</span>.'
+            innerHTML: Svg.cup + 'Найти результат в&nbsp;'
         });
         resultPromo.appendChild(resultPromoTable);
+
+        let resultPromoTableButton = makeElement('span', [], {
+            textContent: 'турнирной таблице'
+        });
+        resultPromoTable.appendChild(resultPromoTableButton);
+
+        this.checkAuth(() => {
+            if (this.authData) {
+                resultPromoTableButton.dataset.click = 'showResultsTable';
+            } else {
+                resultPromoTableButton.dataset.click = 'showAuthWindow';
+
+                window.addEventListener('storage', () => this.storageEventHandler());
+            }
+        });
 
         let resultPromoText = makeElement('div', 'resultPromo__text', {
             innerHTML: 'Курьеры Delivery Express не застревают на ровном месте, слушают только весёлую музыку и&nbsp;используют велосипеды и мопеды, чтобы доставить обед максимально быстро.'
@@ -299,6 +342,89 @@ class Overlay {
     hideResultsTable() {
         this.content.children[0].classList.remove('state--hidden');
         this.content.children[1].classList.add('state--hidden');
+    }
+
+    showAuthWindow() {
+        this.authWindow = makeElement('div', 'auth');
+
+        let title = makeElement('div', 'auth__title', {
+            textContent: 'Авторизуйтесь, чтобы посмотреть результат'
+        });
+        this.authWindow.appendChild(title);
+
+        let close = makeElement('div', 'auth__close', {
+            innerHTML: Svg.close,
+            data: {
+                click: 'hideAuthWindow'
+            }
+        });
+        this.authWindow.appendChild(close);
+
+        let buttons = makeElement('div', 'auth__buttons');
+        this.authWindow.appendChild(buttons);
+
+        let socials = {
+            vk: {
+                url: '/auth/vk',
+                text: 'Вконтакте'
+            },
+            fb: {
+                url: '/auth/facebook',
+                text: 'Facebook'
+            },
+            twitter: {
+                url: '/auth/twitter',
+                text: 'Twitter'
+            },
+            google: {
+                url: '/auth/googleplus',
+                text: 'Google'
+            }
+        };
+
+        for (let name in socials) {
+            let button = makeElement('button', ['auth__button', 'auth__button--' + name], {
+                textContent: socials[name].text,
+                data: {
+                    click: 'auth',
+                    url: socials[name].url
+                }
+            });
+
+            buttons.appendChild(button);
+        }
+
+        this.content.classList.add('state--darken');
+        this.content.appendChild(this.authWindow);
+    }
+
+    hideAuthWindow() {
+        if (isElementInDom(this.authWindow)) {
+            removeElement(this.authWindow);
+        }
+
+        this.content.classList.remove('state--darken');
+    }
+
+    checkAuth(callback) {
+        Request('/special/delivery/checkAuth', 'GET').then(response => {
+            if (response.rc === 200) {
+                this.authData = response.data;
+            }
+            callback(response);
+        }).catch(() => {
+            callback();
+        });
+    }
+
+    auth(button) {
+        let url = button.dataset.url;
+        let left = (screen.width / 2) - (800 / 2);
+        let top = (screen.height / 2) - (570 / 2);
+        let authWindow;
+
+        localStorage.removeItem('logged_in');
+        authWindow = window.open(url, 'displayWindow', `width=720,height=440,left=${left},top=${top},location=no,directories=no,status=no,toolbar=no,menubar=no`);
     }
 
     /**

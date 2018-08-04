@@ -39,7 +39,7 @@ class Steve {
         this.keys += str;
     }
 
-    formPackage() {
+    formPackage(score) {
         this.endTime = this.now();
 
         this.packageData = {
@@ -48,7 +48,8 @@ class Steve {
             genesis: this.genesis,
             startTime: this.startTime,
             endTime: this.endTime,
-            isLast: States.stopped
+            isLast: States.stopped,
+            score
         };
 
         this.keys = '';

@@ -137,8 +137,8 @@ class Ui extends Phaser.Scene {
                 // let elapsed = Intervals.steve.getElapsed();
 
                 // SCORE = elapsed;
-                console.log('Score', SCORE);
-                Steve.formPackage();
+                // console.log('Score', SCORE);
+                Steve.formPackage(SCORE);
             }
         });
 
