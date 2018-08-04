@@ -1,4 +1,18 @@
 /**
+ * Convert regular data object to FormData object
+ * @param {Object} data
+ */
+let convertData = (data) => {
+    let formdata = new FormData();
+
+    for (let key in data) {
+        formdata.append(key, data[key]);
+    }
+
+    return formdata;
+};
+
+/**
  * XMLHttpRequest
  * @param {String} url
  * @param {String} type - GET or POST
@@ -28,7 +42,7 @@ export default (url, type = 'GET', data = '') => {
 
         request.onerror = () => reject(request.statusText);
 
-        request.send(data);
+        request.send(convertData(data));
     });
 
 };

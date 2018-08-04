@@ -11,6 +11,7 @@ import Death from '../gameObjects/death';
 import Obstacles from '../gameObjects/obstacles';
 
 import Overlay from '../overlay';
+import Steve from '../steve';
 
 import {
     getRandomNumber
@@ -18,6 +19,8 @@ import {
 import {
     isElementInDom, removeElement
 } from '../lib/dom';
+
+let ASSETS_PATH = window.__PATH;
 
 let LOCATION = 0;
 
@@ -31,6 +34,8 @@ let OBSTACLES = [];
 let OBSTACLES_FREQUENCY = 5;
 
 let DEATH_TIMEOUT = null;
+
+let KEY_PRESSINGS = '';
 
 let disableDefault = event => {
     event.preventDefault();
@@ -53,20 +58,19 @@ class Main extends Phaser.Scene {
         if (!States.loaded) {
             let progressBar = this.add.graphics();
 
+            this.load.image('overlay_start', ASSETS_PATH + '/assets/start.jpg');
+            this.load.image('overlay_start_button', ASSETS_PATH + '/assets/ui/start_button.png');
+            this.load.image('overlay_pause_button', ASSETS_PATH + '/assets/ui/pause_button.png');
+            this.load.image('overlay_restart_button', ASSETS_PATH + '/assets/ui/restart_button.png');
+            this.load.image('overlay_fb_button', ASSETS_PATH + '/assets/ui/fb_button.png');
+            this.load.image('overlay_vk_button', ASSETS_PATH + '/assets/ui/vk_button.png');
+            this.load.image('overlay_twitter_button', ASSETS_PATH + '/assets/ui/twitter_button.png');
+            this.load.image('overlay_result', ASSETS_PATH + '/assets/result.jpg');
 
-            this.load.image('overlay_start', './assets/start.jpg');
-            this.load.image('overlay_start_button', './assets/ui/start_button.png');
-            this.load.image('overlay_pause_button', './assets/ui/pause_button.png');
-            this.load.image('overlay_restart_button', './assets/ui/restart_button.png');
-            this.load.image('overlay_fb_button', './assets/ui/fb_button.png');
-            this.load.image('overlay_vk_button', './assets/ui/vk_button.png');
-            this.load.image('overlay_twitter_button', './assets/ui/twitter_button.png');
-            this.load.image('overlay_result', './assets/result.jpg');
-
-            this.load.image('pixel', './assets/pixel.png');
+            this.load.image('pixel', ASSETS_PATH + '/assets/pixel.png');
 
             /** Player body parts */
-            let path = './assets/player';
+            let path = ASSETS_PATH + '/assets/player';
 
             this.load.image('body', `${path}/body.png`);
             this.load.image('rightArm', `${path}/arm_right.png`);
@@ -83,13 +87,13 @@ class Main extends Phaser.Scene {
             });
 
             /** Death hands */
-            this.load.spritesheet('death', `./assets/death.png`, {
+            this.load.spritesheet('death', ASSETS_PATH + '/assets/death.png', {
                 frameWidth: 355,
                 frameHeight: 110
             });
 
             /** Global backgrounds */
-            path = './assets/background/global';
+            path = ASSETS_PATH + '/assets/background/global';
 
             for (let i = 1; i <= 6; i++) {
                 this.load.image(`background_global_landscape_${i}`, `${path}/landscape/${i}.png`);
@@ -100,7 +104,7 @@ class Main extends Phaser.Scene {
             this.load.image(`background_global_grass_1`, `${path}/grass/1.png`);
 
             /** Wasteland backgrounds */
-            path = './assets/background/wasteland';
+            path = ASSETS_PATH + '/assets/background/wasteland';
 
             for (let i = 1; i <= 7; i++) {
                 this.load.image(`background_wasteland_back_${i}`, `${path}/back/${i}.png`);
@@ -111,7 +115,7 @@ class Main extends Phaser.Scene {
             }
 
             /** Forest backgrounds */
-            path = './assets/background/forest';
+            path = ASSETS_PATH + '/assets/background/forest';
 
             for (let i = 1; i <= 7; i++) {
                 this.load.image(`background_forest_back_${i}`, `${path}/back/${i}.png`);
@@ -122,7 +126,7 @@ class Main extends Phaser.Scene {
             }
 
             /** City backgrounds */
-            path = './assets/background/city';
+            path = ASSETS_PATH + '/assets/background/city';
 
             for (let i = 1; i <= 5; i++) {
                 this.load.image(`background_city_back_${i}`, `${path}/back/${i}.png`);
@@ -133,7 +137,7 @@ class Main extends Phaser.Scene {
             }
 
             /** Obstacles */
-            path = './assets/obstacles';
+            path = ASSETS_PATH + '/assets/obstacles';
 
             this.load.image(`obstacle_ladder`, `${path}/ladder.png`);
             this.load.image(`obstacle_ladder_ground`, `${path}/ladder_ground.png`);
@@ -147,13 +151,13 @@ class Main extends Phaser.Scene {
             }
 
             /** Sounds */
-            path = './assets/audio';
+            path = ASSETS_PATH + '/assets/audio';
 
             this.load.audio('intro', `${path}/intro.mp3`);
             this.load.audio('loop', `${path}/loop.mp3`);
 
             /** Ui */
-            path = './assets/ui';
+            path = ASSETS_PATH + '/assets/ui';
 
             this.load.image('pause', `${path}/pause.png`);
 
@@ -290,6 +294,23 @@ class Main extends Phaser.Scene {
 
         /** Re-enable keyboard */
         document.removeEventListener('keydown', disableDefault);
+
+        // this.input.keyboard.on('keyup_RIGHT', () => {
+        //     States.pressed = false;
+        // });
+        // this.input.keyboard.on('keyup_LEFT', () => {
+        //     States.pressed = false;
+        // });
+        // this.input.keyboard.on('keyup_A', () => {
+        //     States.pressed = false;
+        // });
+        // this.input.keyboard.on('keyup_D', () => {
+        //     States.pressed = false;
+        // });
+
+        // this.input.addUpCallback(() => {
+        //     States.pressed = false;
+        // }, false);
     }
 
     update() {
@@ -313,18 +334,26 @@ class Main extends Phaser.Scene {
                 GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
 
                 this.playGame();
+                Steve.rememberKeyPress('r');
+
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
                 GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
 
                 this.playGame();
+                Steve.rememberKeyPress('l');
             }
 
             /** Control balance with touch */
             if (POINTER.isDown && POINTER.worldY > 150) {
                 if (POINTER.worldX < Config.width / 2) {
                     GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
+
+                    Steve.rememberKeyPress('l');
+
                 } else if (POINTER.worldX >= Config.width / 2) {
                     GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
+
+                    Steve.rememberKeyPress('r');
                 }
 
                 this.playGame();
@@ -350,15 +379,12 @@ class Main extends Phaser.Scene {
                 UiScene.setBalanceHelperVisible(false);
 
                 /** Stop all counters */
-                for (let item in Intervals) {
-                    if (Intervals[item]) {
-                        if (item === 'counter') {
-                            Intervals[item].paused = true;
-                        } else {
-                            Intervals[item].remove(false);
-                        }
-                    }
-                }
+                Intervals.location.remove(false);
+                Intervals.obstacles.remove(false);
+                Intervals.music.remove(false);
+
+                Intervals.counter.remove(true);
+                Intervals.steve.remove(true);
 
                 /** Disable all active camera effects */
                 this.cameras.main.resetFX();
@@ -574,9 +600,13 @@ class Main extends Phaser.Scene {
      * Pause game
      */
     pause() {
-        if (States.created) {
+        if (States.created && !GameObjects.activeOverlay) {
+            Intervals.counter.remove(true);
+            Intervals.steve.remove(true);
+
             this.scene.pause('Main');
-            this.scene.pause('Ui');
+            // this.scene.pause('Ui');
+
             this.scene.setVisible(false, 'Ui');
 
             if (this.scene.get('Pause').scene.isSleeping()) {
@@ -587,7 +617,7 @@ class Main extends Phaser.Scene {
 
             this.sound.pauseAll();
 
-            States.paused = false;
+            States.paused = true;
 
             GameObjects.activeOverlay = new Overlay('pause', this);
         }
@@ -598,8 +628,12 @@ class Main extends Phaser.Scene {
      */
     resume() {
         if (States.created) {
+            let Ui = this.scene.get('Ui');
+
             this.scene.resume('Main');
-            this.scene.resume('Ui');
+            // this.scene.resume('Ui');
+
+            Ui.startCounter();
 
             this.scene.sleep('Pause');
 
@@ -620,22 +654,25 @@ class Main extends Phaser.Scene {
      */
     restart() {
         if (States.created) {
-            let UiScene = this.scene.get('Ui');
+            let Ui = this.scene.get('Ui');
 
-            UiScene.setBalanceHelperVisible(true);
+            Ui.setBalanceHelperVisible(true);
 
-            for (let item in Intervals) {
-                if (Intervals[item]) {
-                    Intervals[item].remove(false);
-                }
-            }
+            Intervals.location.remove(false);
+            Intervals.obstacles.remove(false);
+            Intervals.music.remove(false);
+
+            Intervals.counter.remove(true);
+            Intervals.steve.remove(true);
 
             if (isElementInDom(GameObjects.obstacles.noise)) {
                 removeElement(GameObjects.obstacles.noise);
             }
 
+            Steve.reset();
+
             this.scene.restart();
-            UiScene.scene.restart();
+            Ui.scene.restart();
 
             this.scene.sleep('Pause');
 

@@ -1,7 +1,10 @@
 import Config from '../base/config';
 import Colors from '../base/colors';
+import States from '../base/states';
 import Intervals from '../base/intervals';
 import { isMobile } from '../lib/check';
+
+import Steve from '../steve';
 
 let BUTTONS = {
     pause: null,
@@ -102,12 +105,10 @@ class Ui extends Phaser.Scene {
     }
 
     update() {
-        if (COUNTER) {
-            if (Intervals.counter) {
-                SCORE = Intervals.counter.getElapsedSeconds().toFixed(2);
-            }
+        if (COUNTER && !States.paused) {
+            let score = (SCORE / 1000).toFixed(2);
 
-            COUNTER.setText(SCORE + ' м');
+            COUNTER.setText(score + ' м');
         }
     }
 
@@ -115,16 +116,37 @@ class Ui extends Phaser.Scene {
      * Start progress counter
      */
     startCounter() {
-        if (COUNTER) {
-            Intervals.counter = this.time.addEvent({
-                loop: true
-            });
-            COUNTER.setVisible(true);
-        }
+        Steve.init();
+
+        let start = Steve.now();
+
+        Intervals.counter = this.time.addEvent({
+            loop: true,
+            delay: 0,
+            callback: () => {
+                let end = Steve.now();
+                SCORE = SCORE + (end - start);
+                start = end;
+            }
+        });
+
+        Intervals.steve = this.time.addEvent({
+            loop: true,
+            delay: Steve.interval,
+            callback: () => {
+                // let elapsed = Intervals.steve.getElapsed();
+
+                // SCORE = elapsed;
+                console.log('Score', SCORE);
+                Steve.formPackage();
+            }
+        });
+
+        COUNTER.setVisible(true);
     }
 
     getCounterValue() {
-        return (SCORE || 0) + '&nbsp;м';
+        return ((SCORE / 1000).toFixed(2) || 0) + '&nbsp;м';
     }
 
     /**

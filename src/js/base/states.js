@@ -4,5 +4,7 @@ export default {
     started: false,
     paused: false,
     stopped: false,
-    dropped: false
+    dropped: false,
+    pressed: false,
+    finished: false
 };

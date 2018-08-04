@@ -9,7 +9,6 @@ const WebFont = require('webfontloader');
 import Main from './scenes/main';
 import Pause from './scenes/pause';
 import Ui from './scenes/ui';
-import { preloadImages } from './lib/helper';
 
 const GAME_CONFIG = {
     type: Phaser.AUTO,
