@@ -228,17 +228,9 @@ class Ui extends Phaser.Scene {
 
                 TIP.icon = this.add.image(x - 55, y - 53, 'arrows');
 
-                this.tweens.add({
-                    targets: TIP.icon,
-                    scale: 5,
-                    duration: 3000,
-                    ease: 'Power2',
-                    loop: 2
-                });
-
                 this.tweens.addCounter({
-                    from: 0.9,
-                    to: 1.2,
+                    from: 0.8,
+                    to: 1,
                     duration: 1200,
                     yoyo: true,
                     repeat: -1,
@@ -267,8 +259,8 @@ class Ui extends Phaser.Scene {
                 TIP.iconLeft = this.add.image(50, y - 200, 'tap_right').setFlipX(true);
 
                 this.tweens.addCounter({
-                    from: 0.9,
-                    to: 1.5,
+                    from: 0.6,
+                    to: 1,
                     duration: 1200,
                     yoyo: true,
                     repeat: -1,
