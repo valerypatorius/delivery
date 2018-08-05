@@ -16,8 +16,8 @@ class Overlay {
         this.el = null;
         this.content = null;
 
-        this.authData = null;
-        this.authWindow = null;
+        this.sessionId = window.__sessionId || null;
+        this.isLogined = window.__isLogined || false;
 
         if (GameObjects.activeOverlay && isElementInDom(GameObjects.activeOverlay)) {
             removeElement(GameObjects.activeOverlay);
@@ -50,8 +50,8 @@ class Overlay {
         if (parseInt(localStorage.logged_in) === 1) {
             localStorage.removeItem('logged_in');
 
-            this.checkAuth(() => {
-                if (this.authData) {
+            this.checkAuth(isLogined => {
+                if (isLogined) {
                     let button = document.querySelector('[data-click="showAuthWindow"]');
 
                     if (button) {
@@ -275,15 +275,12 @@ class Overlay {
         });
         resultPromoTable.appendChild(resultPromoTableButton);
 
-        this.checkAuth(() => {
-            if (this.authData) {
-                resultPromoTableButton.dataset.click = 'showResultsTable';
-            } else {
-                resultPromoTableButton.dataset.click = 'showAuthWindow';
-
-                window.addEventListener('storage', () => this.storageEventHandler());
-            }
-        });
+        if (this.isLogined) {
+            resultPromoTableButton.dataset.click = 'showResultsTable';
+        } else {
+            resultPromoTableButton.dataset.click = 'showAuthWindow';
+            window.addEventListener('storage', () => this.storageEventHandler());
+        }
 
         let resultPromoText = makeElement('div', 'resultPromo__text', {
             innerHTML: 'Курьеры Delivery Express не застревают на ровном месте, слушают только весёлую музыку и&nbsp;используют велосипеды и мопеды, чтобы доставить обед максимально быстро.'
@@ -407,13 +404,15 @@ class Overlay {
     }
 
     checkAuth(callback) {
-        Request('/special/delivery/checkAuth', 'GET').then(response => {
-            if (response.rc === 200) {
-                this.authData = response.data;
-            }
-            callback(response);
+        let data = {
+            sessionId: this.sessionId
+        };
+
+        Request('/special/delivery/checkAuth', 'POST', data).then(() => {
+            window.__isLogined = this.isLogined = true;
+            callback(true);
         }).catch(() => {
-            callback();
+            callback(false);
         });
     }
 

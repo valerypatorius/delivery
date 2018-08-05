@@ -3,6 +3,7 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+const JavaScriptObfuscator = require('webpack-obfuscator');
 
 import Config from './src/js/base/config.js';
 
@@ -14,15 +15,48 @@ const plugins = [
     }),
     new webpack.DefinePlugin({
         IS_PRODUCTION: JSON.stringify(isProduction)
+    }),
+    new JavaScriptObfuscator ({
+        compact: true,
+        controlFlowFlattening: false,
+        deadCodeInjection: false,
+        debugProtection: false,
+        debugProtectionInterval: false,
+        disableConsoleOutput: true,
+        identifierNamesGenerator: 'hexadecimal',
+        log: false,
+        renameGlobals: false,
+        rotateStringArray: true,
+        selfDefending: true,
+        stringArray: true,
+        stringArrayEncoding: false,
+        stringArrayThreshold: 0.75,
+        unicodeEscapeSequence: false
     })
-
 ];
 
 if (isProduction) {
     plugins.push(...[
         new UglifyJsPlugin({
             sourceMap: true
-        })
+        }),
+        // new JavaScriptObfuscator ({
+        //     compact: true,
+        //     controlFlowFlattening: false,
+        //     deadCodeInjection: false,
+        //     debugProtection: false,
+        //     debugProtectionInterval: false,
+        //     disableConsoleOutput: true,
+        //     identifierNamesGenerator: 'hexadecimal',
+        //     log: false,
+        //     renameGlobals: false,
+        //     rotateStringArray: true,
+        //     selfDefending: true,
+        //     stringArray: true,
+        //     stringArrayEncoding: false,
+        //     stringArrayThreshold: 0.75,
+        //     unicodeEscapeSequence: false
+        // })
     ]);
 } else {
     plugins.push(...[
@@ -102,18 +136,7 @@ module.exports = {
         hash: false,
         version: false
     },
-    devtool: !isProduction ? 'source-map' : false,
-    plugins,
-    resolve: {
-        modules: ['node_modules'],
-        alias: {
-            'TweenLite': 'gsap/src/minified/TweenLite.min.js',
-            'TweenMax': 'gsap/src/minified/TweenMax.min.js',
-            'TimelineLite': 'gsap/src/minified/TimelineLite.min.js',
-            'TimelineMax': 'gsap/src/minified/TimelineMax.min.js',
-            'ScrollMagic': 'scrollmagic/scrollmagic/minified/ScrollMagic.min.js',
-            'animation.gsap': 'scrollmagic/scrollmagic/minified/plugins/animation.gsap.min.js',
-            'debug.addIndicators': 'scrollmagic/scrollmagic/minified/plugins/debug.addIndicators.min.js'
-        }
-    }
+    // devtool: !isProduction ? 'source-map' : false,
+    devtool: false,
+    plugins
 };

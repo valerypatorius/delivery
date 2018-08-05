@@ -31,7 +31,8 @@
     "style-loader": "^0.20.1",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
-    "webpack": "^3.11.0"
+    "webpack": "^3.11.0",
+    "webpack-obfuscator": "^0.17.3"
   },
   "dependencies": {
     "cmtt-likely": "^1.2.1",

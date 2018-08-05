@@ -67,6 +67,11 @@ class Main extends Phaser.Scene {
             this.load.image('overlay_twitter_button', ASSETS_PATH + '/assets/ui/twitter_button.png');
             this.load.image('overlay_result', ASSETS_PATH + '/assets/result.jpg');
 
+            this.load.image('login_button_vk', ASSETS_PATH + '/assets/ui/login/vk.png');
+            this.load.image('login_button_fb', ASSETS_PATH + '/assets/ui/login/fb.png');
+            this.load.image('login_button_twitter', ASSETS_PATH + '/assets/ui/login/twitter.png');
+            this.load.image('login_button_google', ASSETS_PATH + '/assets/ui/login/google.png');
+
             this.load.image('pixel', ASSETS_PATH + '/assets/pixel.png');
 
             /** Player body parts */
@@ -601,8 +606,13 @@ class Main extends Phaser.Scene {
      */
     pause() {
         if (States.created && !GameObjects.activeOverlay) {
-            Intervals.counter.remove(true);
-            Intervals.steve.remove(true);
+
+            if (Intervals.counter) {
+                Intervals.counter.remove(true);
+            }
+            if (Intervals.steve) {
+                Intervals.steve.remove(true);
+            }
 
             this.scene.pause('Main');
             // this.scene.pause('Ui');
@@ -633,7 +643,9 @@ class Main extends Phaser.Scene {
             this.scene.resume('Main');
             // this.scene.resume('Ui');
 
-            Ui.startCounter();
+            if (States.started) {
+                Ui.startCounter();
+            }
 
             this.scene.sleep('Pause');
 
