@@ -186,7 +186,10 @@ strong {
     max-width: 960px;
   }
 }
-.overlayContent.state--darken:after {
+.overlayContent.state--darken .result {
+  position: relative;
+}
+.overlayContent.state--darken .result:after {
   content: '';
   position: absolute;
   top: 0;
