@@ -15,6 +15,7 @@ class Overlay {
         this.params = params;
         this.el = null;
         this.content = null;
+        this.resultsTable = null;
 
         this.sessionId = window.__sessionId || null;
         this.isLogined = window.__isLogined || false;
@@ -97,6 +98,11 @@ class Overlay {
         GameObjects.activeOverlay = null;
 
         BUTTONS = null;
+
+        if (GameObjects.resultsTable) {
+            GameObjects.resultsTable.destroy();
+            GameObjects.resultsTable = null;
+        }
     }
 
     /**
@@ -323,10 +329,8 @@ class Overlay {
         });
         title.appendChild(backButton);
 
-        let table = new ResultsTable();
-
-        container.appendChild(table.getTable());
-        container.appendChild(table.getPagination());
+        this.resultsTable = makeElement('div', 'resultTable__table');
+        container.appendChild(this.resultsTable);
 
         this.content.appendChild(container);
     }
@@ -334,6 +338,11 @@ class Overlay {
     showResultsTable() {
         this.content.children[0].classList.add('state--hidden');
         this.content.children[1].classList.remove('state--hidden');
+
+        if (!GameObjects.resultsTable) {
+            GameObjects.resultsTable = new ResultsTable(this.resultsTable);
+        }
+        GameObjects.resultsTable.load();
     }
 
     hideResultsTable() {

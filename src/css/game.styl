@@ -445,6 +445,34 @@ strong
             height: 16px
             margin-right: 10px
 
+    &__table
+        min-height: 430px
+        position: relative
+        z-index: 1
+
+        @media $mq.not_mobile
+            min-height: 560px
+
+        &:before
+            content: ''
+            width: 30px
+            height: @width
+            border: 2px solid transparent
+            border-top-color: $colors.green
+            border-radius: 50%
+            position: absolute
+            top: 50%
+            left: 50%
+            margin-left: @width * -0.5
+            margin-top: @width * -0.5
+            animation: loader 0.4s linear infinite
+            z-index: -1
+            opacity: 0
+
+        &.state--loading
+            &:before
+                opacity: 1
+
 .table
     display: flex
     flex-direction: column
@@ -484,6 +512,9 @@ strong
                 @media $mq.not_mobile
                     padding-left: 20px
 
+        &.state--active
+            color: $colors.green
+
     &__cell
         display: table-cell
         padding-top: 11px
@@ -519,6 +550,7 @@ strong
         &.state--active
             cursor: default
             color: $colors.green
+            pointer-events: none
 
 .auth
     box-sizing: border-box

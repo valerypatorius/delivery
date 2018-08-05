@@ -1,121 +1,134 @@
 import Svg from './svg';
-import { makeElement } from './lib/dom';
+import Request from './lib/request';
+import { makeElement, removeElement, removeChildren, isElementInDom } from './lib/dom';
 
 class ResultsTable {
-    constructor() {
+    constructor(wrapper) {
+        this.wrapper = wrapper;
+
         this.prepareTable();
         this.preparePagination();
+
+        this.wrapper.addEventListener('click', e => this.clickHandler(e));
+    }
+
+    destroy() {
+        if (isElementInDom(this.wrapper)) {
+            removeElement(this.wrapper);
+        }
+        this.wrapper = null;
+    }
+
+    clickHandler(event) {
+        let target = event.target;
+        let action;
+
+        while (target.parentNode && target !== event.currentTarget) {
+            action = target.dataset.click;
+
+            if (action) break;
+            target = target.parentNode;
+        }
+
+        action = target.dataset.click;
+
+        if (action && this[action]) {
+            this[action](event.target, event);
+        }
     }
 
     prepareTable() {
         this.container = makeElement('div', 'table');
-
-        let header = makeElement('div', 'table__header');
-        this.container.appendChild(header);
-
-        this.fillRow(header, ['Место', '', 'Имя', 'Расстояние']);
     }
 
     preparePagination() {
         this.pagination = makeElement('div', 'tablePagination');
     }
 
-    getTable() {
-        this.fillTable();
+    getTable(data) {
+        this.fillTable(data);
         return this.container;
     }
 
-    getPagination() {
-        this.fillPagination();
+    getPagination(current, max) {
+        this.fillPagination(current, max);
         return this.pagination;
     }
 
-    fillTable() {
-        let dummyData = [
-            {
-                position: 1,
-                icon: Svg.star,
-                name: 'Илон Маск',
-                result: '1337.32&nbsp;м'
-            },
-            {
-                position: 2,
-                icon: Svg.star,
-                name: 'Тони Старк',
-                result: '923.35&nbsp;м'
-            },
-            {
-                position: 3,
-                icon: Svg.star,
-                name: 'Сильвана Ветрокрылая',
-                result: '812.24&nbsp;м'
-            },
-            {
-                position: 4,
-                icon: '',
-                name: 'Норман Ридус',
-                result: '762.12&nbsp;м'
-            },
-            {
-                position: 5,
-                icon: '',
-                name: 'Константин Константинопольский',
-                result: '677.25&nbsp;м'
-            },
-            {
-                position: 6,
-                icon: '',
-                name: 'Тодд Говард',
-                result: '598.64&nbsp;м'
-            },
-            {
-                position: 7,
-                icon: '',
-                name: 'Джеймс Кэмерон',
-                result: '485.63&nbsp;м'
-            },
-            {
-                position: 8,
-                icon: '',
-                name: 'Геральт из Ривии',
-                result: '427.88&nbsp;м'
-            },
-            {
-                position: 9,
-                icon: '',
-                name: 'Олег',
-                result: '317.36&nbsp;м'
-            },
-            {
-                position: 10,
-                icon: '',
-                name: 'Элизабет Комсток',
-                result: '277.01&nbsp;м'
-            },
-        ];
+    loadFromButton(button) {
+        let page = button.dataset ? parseInt(button.dataset.page) : 1;
+        this.load(page);
+    }
 
-        dummyData.forEach(item => {
-            let row = makeElement('div', 'table__row');
-            this.container.appendChild(row);
-            this.fillRow(row, Object.values(item));
+    load(page) {
+        let url = null;
+
+        if (page && typeof page === 'number') {
+            url = '/special/delivery/results/page/' + page;
+        } else {
+            url = '/special/delivery/results/me';
+        }
+
+        this.wrapper.classList.add('state--loading');
+
+        Request(url, 'GET').then(response => {
+            response = JSON.parse(response);
+
+            let table = this.getTable(response);
+            let pagination = this.getPagination(response[0].current_page, response[0].last_page);
+
+            this.wrapper.appendChild(table);
+            this.wrapper.appendChild(pagination);
+
+            this.wrapper.classList.remove('state--loading');
         });
     }
 
-    fillPagination() {
-        let len = 10;
+    fillTableHeader() {
+        let header = makeElement('div', 'table__header');
+        this.container.appendChild(header);
 
-        for (let i = 1; i <= len; i++){
-            let button = makeElement('div', 'tablePagination__item', {
-                textContent: i,
-                // data: {
-                //     click: 'loadTable'
-                // }
-            });
+        this.fillRow(header, ['Место', '', 'Имя', 'Расстояние']);
+    }
 
-            this.pagination.appendChild(button);
+    fillTable(data) {
+        removeChildren(this.container);
 
-            if (i === 1) {
-                button.classList.add('state--active');
+        this.fillTableHeader();
+
+        data.forEach(item => {
+            let row = makeElement('div', 'table__row');
+            let icon = parseInt(item.rank) <= 10 ? Svg.star : '';
+
+            if (item.is_me) {
+                row.classList.add('state--active');
+            }
+
+            this.container.appendChild(row);
+            this.fillRow(row, [
+                item.rank, icon, item.name, item.score + '&nbsp;м'
+            ]);
+        });
+    }
+
+    fillPagination(current, max) {
+        removeChildren(this.pagination);
+
+        if (max > 1) {
+            for (let i = 1; i <= max; i++){
+                let button = makeElement('div', 'tablePagination__item', {
+                    textContent: i,
+                    data: {
+                        click: 'loadFromButton',
+                        page: i
+                    }
+                });
+
+                if (i === current) {
+                    button.classList.add('state--active');
+                }
+
+                this.pagination.appendChild(button);
             }
         }
     }

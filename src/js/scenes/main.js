@@ -643,7 +643,7 @@ class Main extends Phaser.Scene {
             this.scene.resume('Main');
             // this.scene.resume('Ui');
 
-            if (States.started) {
+            if (States.started && !States.stopped) {
                 Ui.startCounter();
             }
 
