@@ -59,6 +59,8 @@ class Steve {
             this.packageData.hash = hash;
             this.packageData.bounce = bounce;
 
+            this.genesis = hash;
+
             Request('/special/delivery/sendAliby', 'POST', this.packageData).then(() => {
                 console.log('Sent', this.packageData);
             }).catch(() => {

@@ -9,6 +9,6 @@ export default {
     height: isClient ? window.innerHeight * dpr : 768,
     scale: 1 / dpr,
     maxPlayerFallAngle: 75,
-    gravity: 2,
+    gravity: 3,
     mute: true
 };

@@ -23,6 +23,7 @@ import {
 let ASSETS_PATH = window.__PATH;
 
 let LOCATION = 0;
+let LOCATIONS_INTERVAL = 30;
 
 let AUDIO = {};
 
@@ -34,8 +35,6 @@ let OBSTACLES = [];
 let OBSTACLES_FREQUENCY = 5;
 
 let DEATH_TIMEOUT = null;
-
-let KEY_PRESSINGS = '';
 
 let disableDefault = event => {
     event.preventDefault();
@@ -301,20 +300,20 @@ class Main extends Phaser.Scene {
         document.removeEventListener('keydown', disableDefault);
 
         // this.input.keyboard.on('keyup_RIGHT', () => {
-        //     States.pressed = false;
+        //     PRESS_DURATION = 0;
         // });
         // this.input.keyboard.on('keyup_LEFT', () => {
-        //     States.pressed = false;
+        //     PRESS_DURATION = 0;
         // });
         // this.input.keyboard.on('keyup_A', () => {
-        //     States.pressed = false;
+        //     PRESS_DURATION = 0;
         // });
         // this.input.keyboard.on('keyup_D', () => {
-        //     States.pressed = false;
+        //     PRESS_DURATION = 0;
         // });
 
         // this.input.addUpCallback(() => {
-        //     States.pressed = false;
+        //     PRESS_DURATION = 0;
         // }, false);
     }
 
@@ -332,17 +331,20 @@ class Main extends Phaser.Scene {
 
             /** Control balance with keyboard */
             // let deltaY = 0;
-            let deltaY = Math.abs(Math.round(playerAngle / 10));
-            let velocityY = 1 / (deltaY !== 0 ? deltaY : 2);
+            let deltaY = Math.abs(Math.round(playerAngle / 500));
+            let velocityY = (deltaY !== 0 ? deltaY : 2);
+
+            let velocities = [0.5, 1, 1.5, 2, 2.25];
+            let velocityX = velocities[getRandomNumber(0, velocities.length - 1)];
 
             if (CURSORS.right.isDown || KEYS.D.isDown) {
-                GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
+                GameObjects.player.top.setVelocity(velocityX, playerAngle > 0 ? 1 / velocityY : -velocityY);
 
                 this.playGame();
                 Steve.rememberKeyPress('r');
 
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
-                GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
+                GameObjects.player.top.setVelocity(-velocityX, playerAngle < 0 ? 1 / velocityY : -velocityY);
 
                 this.playGame();
                 Steve.rememberKeyPress('l');
@@ -351,12 +353,12 @@ class Main extends Phaser.Scene {
             /** Control balance with touch */
             if (POINTER.isDown && POINTER.worldY > 150) {
                 if (POINTER.worldX < Config.width / 2) {
-                    GameObjects.player.top.setVelocity(-1, playerAngle > 0 ? velocityY : -velocityY);
+                    GameObjects.player.top.setVelocity(-velocityX, playerAngle < 0 ? 1 / velocityY : -velocityY);
 
                     Steve.rememberKeyPress('l');
 
                 } else if (POINTER.worldX >= Config.width / 2) {
-                    GameObjects.player.top.setVelocity(1, playerAngle > 0 ? -velocityY : velocityY);
+                    GameObjects.player.top.setVelocity(velocityX, playerAngle > 0 ? 1 / velocityY : -velocityY);
 
                     Steve.rememberKeyPress('r');
                 }
@@ -583,13 +585,13 @@ class Main extends Phaser.Scene {
             /** Update location */
             Intervals.location = this.time.addEvent({
                 loop: true,
-                delay: 50 * 1000,
+                delay: LOCATIONS_INTERVAL * 1000,
                 callback: () => {
                     LOCATION++;
 
                     if (LOCATION > 2) {
                         LOCATION = 0;
-                        Config.gravity++;
+                        Config.gravity += 0.5;
                     }
 
                     GameObjects.backgrounds.changeLocation(LOCATION, GameObjects.obstacles.imagesToTween);

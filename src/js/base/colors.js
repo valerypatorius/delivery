@@ -2,8 +2,9 @@ export default {
     hex: {
         white: '#ffffff'
     },
+    white: 0xffffff,
     green: 0x9ccd2d,
-    red: 0x96281b,
+    red: 0xcf000f,
     default: {
         main: [0xe1e1e1, 0xe1e1e1, 0xffffff, 0xffffff],
         cords: 0xa1a1a1,

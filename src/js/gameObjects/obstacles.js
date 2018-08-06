@@ -45,11 +45,11 @@ class Obstacles {
 
                     if (params.texture.match(/obstacle_debree/)) {
                         this.game.cameras.main.shake(4000, 0.001);
-                        this.game.matter.world.setGravity(0, Config.gravity + 1);
-                    } else if (params.texture.match(/obstacle_ladder/)) {
                         this.game.matter.world.setGravity(0, Config.gravity + 2);
+                    } else if (params.texture.match(/obstacle_ladder/)) {
+                        this.game.matter.world.setGravity(0, Config.gravity + 3);
                     } else {
-                        this.game.matter.world.setGravity(0, Config.gravity + 1.5);
+                        this.game.matter.world.setGravity(0, Config.gravity + 2.5);
 
                         if (this.isCssOverlaySupported) {
                             document.body.appendChild(this.noise);

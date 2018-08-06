@@ -136,7 +136,7 @@ module.exports = {
         hash: false,
         version: false
     },
-    // devtool: !isProduction ? 'source-map' : false,
+    devtool: !isProduction ? 'source-map' : false,
     devtool: false,
     plugins
 };
