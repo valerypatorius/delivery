@@ -61,7 +61,7 @@ class Steve {
 
             this.genesis = hash;
 
-            Request('/special/delivery/sendAliby', 'POST', this.packageData).then(() => {
+            Request('/special/genius/sendAliby', 'POST', this.packageData).then(() => {
                 console.log('Sent', this.packageData);
             }).catch(() => {
                 console.log('Not sent', this.packageData);

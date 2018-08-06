@@ -285,6 +285,24 @@ strong {
 .start__button:focus {
   background-position: 50% 100%;
 }
+.start__rules {
+  margin-top: 15px;
+  font-size: 14px;
+  line-height: 1.4em;
+  color: rgba(255,255,255,0.3);
+  border-bottom: 1px solid;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+}
+@media (min-width: 1024px) {
+  .start__rules {
+    margin-top: 30px;
+  }
+}
+.start__rules:hover {
+  color: #fff;
+}
 .pause {
   width: 421px;
   margin: 0 auto;
@@ -338,7 +356,6 @@ strong {
 .resultHeader {
   box-sizing: border-box;
   padding: 15px;
-  min-height: 320px;
   background-image: url("../assets/result.jpg");
   background-repeat: no-repeat;
   background-size: auto 160px;
@@ -346,6 +363,7 @@ strong {
 }
 @media (min-width: 1024px) {
   .resultHeader {
+    min-height: 320px;
     padding: 40px 50px;
     background-position: 100% 0;
     display: -ms-flexbox;
@@ -356,11 +374,11 @@ strong {
   }
 }
 .resultHeader__title {
-  font-size: 32px;
+  font-size: 24px;
   line-height: 1.3em;
   font-weight: 700;
-  margin-top: 160px;
-  margin-bottom: 20px;
+  margin-top: 30px;
+  margin-bottom: 70px;
 }
 @media (min-width: 1024px) {
   .resultHeader__title {
@@ -803,4 +821,16 @@ strong {
 }
 .auth__button--google {
   background-image: url("../assets/ui/login/google.png");
+}
+.auth__rules {
+  font-size: 14px;
+  line-height: 1.41em;
+  margin-top: 30px;
+  color: rgba(255,255,255,0.3);
+}
+.auth__rules a {
+  border-bottom: 1px solid;
+}
+.auth__rules a:hover {
+  color: #fff;
 }

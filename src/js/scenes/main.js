@@ -210,7 +210,9 @@ class Main extends Phaser.Scene {
         /** Start overlay */
         if (!States.created) {
             this.cameras.main.alpha = 0;
-            GameObjects.activeOverlay = new Overlay('start', this);
+            // GameObjects.activeOverlay = new Overlay('start', this);
+
+            GameObjects.activeOverlay = new Overlay('result', this);
         } else {
             this.start();
         }
@@ -595,7 +597,6 @@ class Main extends Phaser.Scene {
 
                     if (LOCATION > 2) {
                         LOCATION = 0;
-                        Config.gravity += 0.5;
                     }
 
                     GameObjects.backgrounds.changeLocation(LOCATION, GameObjects.obstacles.imagesToTween);
@@ -719,6 +720,8 @@ class Main extends Phaser.Scene {
 
             OBSTACLES = [];
             OBSTACLES_FREQUENCY = 5;
+
+            LOCATION = 0;
 
             if (DEATH_TIMEOUT) {
                 clearTimeout(DEATH_TIMEOUT);

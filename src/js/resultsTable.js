@@ -64,9 +64,9 @@ class ResultsTable {
         let url = null;
 
         if (page && typeof page === 'number') {
-            url = '/special/delivery/results/page/' + page;
+            url = '/special/genius/results/page/' + page;
         } else {
-            url = '/special/delivery/results/me';
+            url = '/special/genius/results/me';
         }
 
         this.wrapper.classList.add('state--loading');

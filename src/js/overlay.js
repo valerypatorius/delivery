@@ -140,7 +140,7 @@ class Overlay {
                 icon: Svg.dtf
             },
             {
-                href: 'https://www.delivery-club.ru/',
+                href: 'https://dclub.app.link/pGeHHzgW9O',
                 icon: Svg.delivery
             }
         ];
@@ -169,6 +169,13 @@ class Overlay {
             }
         });
         start.appendChild(button);
+
+        let rules = makeElement('a', 'start__rules', {
+            href: '/special/genius/terms',
+            target: '_blank',
+            textContent: 'Правила конкурса'
+        });
+        start.appendChild(rules);
 
         this.content.appendChild(start);
         this.el.appendChild(this.content);
@@ -248,7 +255,7 @@ class Overlay {
         result.appendChild(resultHeader);
 
         let title = makeElement('div', 'resultHeader__title', {
-            innerHTML: 'Ты прошёл ' + Ui.getCounterValue()
+            innerHTML: 'Ты прошёл<br>' + Ui.getCounterValue()
         });
         resultHeader.appendChild(title);
 
@@ -305,7 +312,7 @@ class Overlay {
         resultPromo.appendChild(resultPromoCodeNode);
 
         let resultPromoLink = makeElement('a', 'resultPromo__link', {
-            href: 'https://www.delivery-club.ru/',
+            href: 'https://dclub.app.link/pGeHHzgW9O',
             target: '_blank',
             innerHTML: 'Сделать заказ <span>&nbsp;в Delivery Club</span>'
         });
@@ -408,6 +415,11 @@ class Overlay {
             buttons.appendChild(button);
         }
 
+        let rules = makeElement('div', 'auth__rules', {
+            innerHTML: '*Авторизуясь, вы соглашаетесь с&nbsp;<a href="/terms" target="_blank">правилами</a> пользования сайтом и&nbsp;даёте согласие на обработку <a href="/agreement" target="_blank">персональных данных</a>.'
+        });
+        this.authWindow.appendChild(rules);
+
         this.content.classList.add('state--darken');
         this.content.appendChild(this.authWindow);
     }
@@ -425,7 +437,7 @@ class Overlay {
             sessionId: this.sessionId
         };
 
-        Request('/special/delivery/checkAuth', 'POST', data).then(() => {
+        Request('/special/genius/checkAuth', 'POST', data).then(() => {
             window.__isLogined = this.isLogined = true;
             callback(true);
         }).catch(() => {

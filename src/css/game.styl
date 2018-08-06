@@ -183,6 +183,20 @@ strong
         &:focus
             background-position: 50% 100%
 
+    &__rules
+        margin-top: 15px
+        font-size: 14px
+        line-height: 1.4em
+        color: rgba($colors.white, 0.3)
+        border-bottom: 1px solid
+        align-self: center
+
+        @media $mq.not_mobile
+            margin-top: 30px
+
+        &:hover
+            color: $colors.white
+
 .pause
     width: 421px
     margin: 0 auto
@@ -233,13 +247,13 @@ strong
 .resultHeader
     box-sizing: border-box
     padding: 15px
-    min-height: 320px
     background-image: url('../assets/result.jpg')
     background-repeat: no-repeat
     background-size: auto 160px
     background-position: 100% 0
 
     @media $mq.not_mobile
+        min-height: 320px
         padding: 40px 50px
         background-position: 100% 0
         display: flex
@@ -247,11 +261,11 @@ strong
         background-size: auto 320px
 
     &__title
-        font-size: 32px
+        font-size: 24px
         line-height: 1.3em
         font-weight: 700
-        margin-top: 160px
-        margin-bottom: 20px
+        margin-top: 30px
+        margin-bottom: 70px
 
         @media $mq.not_mobile
             font-size: 52px
@@ -642,3 +656,15 @@ strong
             background-image: url('../assets/ui/login/twitter.png')
         &--google
             background-image: url('../assets/ui/login/google.png')
+
+    &__rules
+        font-size: 14px
+        line-height: 1.41em
+        margin-top: 30px
+        color: rgba($colors.white, 0.3)
+
+        a
+            border-bottom: 1px solid
+
+            &:hover
+                color: $colors.white
