@@ -11,6 +11,9 @@ let BUTTONS = {
     sound: null
 };
 
+let IS_SOUND_TIP_SEEN = false;
+let SOUND_TIP = {};
+
 let COUNTER = null;
 let SCORE = null;
 
@@ -59,6 +62,31 @@ class Ui extends Phaser.Scene {
                 fill: Colors.hex.white
             }
         }).setOrigin(0, 0).setAlpha(0.5);
+
+        if (!IS_SOUND_TIP_SEEN && !isMobile()) {
+            SOUND_TIP.icon = this.add.image(225, 54, 'arrow_left').setOrigin(0, 0).setAlpha(0);
+            SOUND_TIP.text = this.make.text({
+                x: 255,
+                y: 52,
+                text: 'Нажми, чтобы включить грустную музыку',
+                style: {
+                    font: '500 18px Montserrat',
+                    fill: Colors.hex.white
+                }
+            }).setOrigin(0, 0).setAlpha(0);
+
+            if (SOUND_TIP.icon && SOUND_TIP.text) {
+                this.tweens.add({
+                    targets: [SOUND_TIP.icon, SOUND_TIP.text],
+                    x: '-=20',
+                    alpha: 1,
+                    duration: 1000,
+                    ease: 'Quad.easeInOut'
+                });
+            }
+
+            IS_SOUND_TIP_SEEN = true;
+        }
 
         BUTTONS.sound.on('pointerdown', () => {
             Config.mute = !Config.mute;
@@ -112,6 +140,14 @@ class Ui extends Phaser.Scene {
         }
     }
 
+    removeSoundTip() {
+        if (SOUND_TIP.icon && SOUND_TIP.text) {
+            for (let object in SOUND_TIP) {
+                SOUND_TIP[object].destroy();
+            }
+        }
+    }
+
     /**
      * Start progress counter
      */
@@ -150,6 +186,7 @@ class Ui extends Phaser.Scene {
      */
     updateIcons() {
         BUTTONS.sound.setFrame(Config.mute ? 1 : 0);
+        this.removeSoundTip();
     }
 
     /**
@@ -204,7 +241,7 @@ class Ui extends Phaser.Scene {
                     }
                 }).setOrigin(0.5, 1);
 
-                TIP.icon = this.add.image(x - 55, y - 53, 'arrows');
+                TIP.icon = this.add.image(x - 55, y - 53, 'arrows').setScale(0.8);
 
                 this.tweens.addCounter({
                     from: 0.8,

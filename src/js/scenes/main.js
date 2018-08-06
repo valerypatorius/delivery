@@ -65,6 +65,7 @@ class Main extends Phaser.Scene {
             this.load.image('overlay_vk_button', ASSETS_PATH + '/assets/ui/vk_button.png');
             this.load.image('overlay_twitter_button', ASSETS_PATH + '/assets/ui/twitter_button.png');
             this.load.image('overlay_result', ASSETS_PATH + '/assets/result.jpg');
+            this.load.image('arrow_left', ASSETS_PATH + '/assets/ui/arrow_left.svg');
 
             this.load.image('login_button_vk', ASSETS_PATH + '/assets/ui/login/vk.png');
             this.load.image('login_button_fb', ASSETS_PATH + '/assets/ui/login/fb.png');
@@ -579,6 +580,9 @@ class Main extends Phaser.Scene {
             /** Start counter */
             Ui.startCounter();
 
+            /** Remove sound tip */
+            Ui.removeSoundTip();
+
             /** Remove welcome tip */
             Ui.removeTip();
 
@@ -672,12 +676,23 @@ class Main extends Phaser.Scene {
 
             Ui.setBalanceHelperVisible(true);
 
-            Intervals.location.remove(false);
-            Intervals.obstacles.remove(false);
+            if (Intervals.location) {
+                Intervals.location.remove(false);
+            }
+
+            if (Intervals.obstacles) {
+                Intervals.obstacles.remove(false);
+            }
+
             Intervals.music.remove(false);
 
-            Intervals.counter.remove(true);
-            Intervals.steve.remove(true);
+            if (Intervals.counter) {
+                Intervals.counter.remove(true);
+            }
+
+            if (Intervals.steve) {
+                Intervals.steve.remove(true);
+            }
 
             if (isElementInDom(GameObjects.obstacles.noise)) {
                 removeElement(GameObjects.obstacles.noise);
