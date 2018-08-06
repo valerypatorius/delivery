@@ -13,6 +13,8 @@ import Obstacles from '../gameObjects/obstacles';
 import Overlay from '../overlay';
 import Steve from '../steve';
 
+import * as Analytics from '../lib/analytics';
+
 import {
     getRandomNumber
 } from '../lib/helper';
@@ -563,6 +565,10 @@ class Main extends Phaser.Scene {
             D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
         };
 
+        if (!States.created) {
+            Analytics.sendEvent('Start', 'Click');
+        }
+
         States.created = true;
     }
 
@@ -603,6 +609,8 @@ class Main extends Phaser.Scene {
 
             /** Spawn obstacles */
             this.addObstacles();
+
+            Analytics.sendEvent('Play', 'Start');
         }
     }
 
@@ -737,6 +745,8 @@ class Main extends Phaser.Scene {
             }
 
             this.scene.setVisible(true, 'Ui');
+
+            Analytics.sendEvent('Restart', 'Click');
         }
     }
 
@@ -744,6 +754,8 @@ class Main extends Phaser.Scene {
         this.scene.setVisible(false, 'Ui');
 
         GameObjects.activeOverlay = new Overlay('result', this);
+
+        Analytics.sendEvent('Result', 'Hit');
     }
 
     /**

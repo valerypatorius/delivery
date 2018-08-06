@@ -7,6 +7,8 @@ import ResultsTable from './resultsTable';
 import Request from './lib/request';
 import { preloadImages } from './lib/helper';
 
+import * as Analytics from './lib/analytics';
+
 let BUTTONS = null;
 
 class Overlay {
@@ -314,7 +316,10 @@ class Overlay {
         let resultPromoLink = makeElement('a', 'resultPromo__link', {
             href: 'https://dclub.app.link/pGeHHzgW9O',
             target: '_blank',
-            innerHTML: 'Сделать заказ <span>&nbsp;в Delivery Club</span>'
+            innerHTML: 'Сделать заказ <span>&nbsp;в Delivery Club</span>',
+            data: {
+                click: 'promoLink'
+            }
         });
         resultPromo.appendChild(resultPromoLink);
 
@@ -326,6 +331,10 @@ class Overlay {
             window.__PATH + '/assets/ui/login/twitter.png',
             window.__PATH + '/assets/ui/login/google.png'
         ]);
+    }
+
+    promoLink() {
+        Analytics.sendEvent('Promo button in results', 'Click');
     }
 
     makeResultsTable() {

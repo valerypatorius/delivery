@@ -10,6 +10,8 @@ import Main from './scenes/main';
 import Pause from './scenes/pause';
 import Ui from './scenes/ui';
 
+import * as Analytics from './lib/analytics';
+
 const GAME_CONFIG = {
     type: Phaser.AUTO,
     width: Config.width,
@@ -37,3 +39,5 @@ WebFont.load({
         new Phaser.Game(GAME_CONFIG);
     }
 });
+
+Analytics.sendPageView();

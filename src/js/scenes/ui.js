@@ -6,6 +6,8 @@ import { isMobile } from '../lib/check';
 
 import Steve from '../steve';
 
+import * as Analytics from '../lib/analytics';
+
 let BUTTONS = {
     pause: null,
     sound: null
@@ -93,6 +95,8 @@ class Ui extends Phaser.Scene {
             MainScene.sound.setMute(Config.mute);
 
             BUTTONS.sound.setFrame(Config.mute ? 1 : 0);
+
+            Analytics.sendEvent('Music Button ' + (Config.mute ? 'Off' : 'On'), 'Click');
         });
 
         for (let name in BUTTONS) {
