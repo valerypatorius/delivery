@@ -210,9 +210,7 @@ class Main extends Phaser.Scene {
         /** Start overlay */
         if (!States.created) {
             this.cameras.main.alpha = 0;
-            // GameObjects.activeOverlay = new Overlay('start', this);
-
-            GameObjects.activeOverlay = new Overlay('result', this);
+            GameObjects.activeOverlay = new Overlay('start', this);
         } else {
             this.start();
         }
