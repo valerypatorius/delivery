@@ -5,6 +5,7 @@ import * as Share from './lib/share';
 import Config from './base/config';
 import ResultsTable from './resultsTable';
 import Request from './lib/request';
+import { preloadImages } from './lib/helper';
 
 let BUTTONS = null;
 
@@ -311,6 +312,13 @@ class Overlay {
         resultPromo.appendChild(resultPromoLink);
 
         this.makeResultsTable();
+
+        preloadImages([
+            window.__PATH + '/assets/ui/login/fb.png',
+            window.__PATH + '/assets/ui/login/vk.png',
+            window.__PATH + '/assets/ui/login/twitter.png',
+            window.__PATH + '/assets/ui/login/google.png'
+        ]);
     }
 
     makeResultsTable() {

@@ -5,7 +5,6 @@ import Intervals from '../base/intervals';
 import { isMobile } from '../lib/check';
 
 import Steve from '../steve';
-import ImageTween from '../imageTween';
 
 let BUTTONS = {
     pause: null,
@@ -135,10 +134,6 @@ class Ui extends Phaser.Scene {
             loop: true,
             delay: Steve.interval,
             callback: () => {
-                // let elapsed = Intervals.steve.getElapsed();
-
-                // SCORE = elapsed;
-                // console.log('Score', SCORE);
                 Steve.formPackage(SCORE);
             }
         });
@@ -164,26 +159,7 @@ class Ui extends Phaser.Scene {
      */
     updateBalanceHelper(angle, gravity) {
         if (BALANCE_HELPER.anchor) {
-            // let helperAngle = angle * 0.799 * gravity;
-            // let helperAngle = angle * 0.6 * gravity;
-            let criticalAngle = 65;
-
             let helperAngle = angle * 0.9;
-
-            // if (helperAngle > criticalAngle) {
-            //     helperAngle = criticalAngle;
-            //     BALANCE_HELPER.anchor.setTint(Colors.red);
-            //     BALANCE_HELPER.line.setTint(Colors.red);
-            // } else if (helperAngle < -criticalAngle) {
-            //     helperAngle = -criticalAngle;
-            //     BALANCE_HELPER.anchor.setTint(Colors.red);
-            //     BALANCE_HELPER.line.setTint(Colors.red);
-            // } else {
-            //     helperAngle = helperAngle;
-            //     BALANCE_HELPER.anchor.clearTint();
-            //     BALANCE_HELPER.line.clearTint();
-            // }
-
             BALANCE_HELPER.anchor.setAngle(helperAngle);
         }
     }
