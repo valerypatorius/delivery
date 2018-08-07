@@ -31,7 +31,8 @@ let AUDIO = {};
 
 let CURSORS = null;
 let KEYS = null;
-let POINTER = null;
+let POINTER_1 = null;
+let POINTER_2 = null;
 
 let OBSTACLES = [];
 let OBSTACLES_FREQUENCY = 5;
@@ -334,38 +335,50 @@ class Main extends Phaser.Scene {
 
             /** Control balance with keyboard */
             // let deltaY = 0;
-            let deltaY = Math.abs(Math.round(playerAngle / 500));
+            let deltaY = Math.abs(Math.round(playerAngle / 10000));
             let velocityY = (deltaY !== 0 ? deltaY : 2);
 
-            let velocities = [0.5, 1, 1.5, 2, 2.25];
-            let velocityX = velocities[getRandomNumber(0, velocities.length - 1)];
+            let velocities = [0.5, 1, 2, 2.5];
 
             if (CURSORS.right.isDown || KEYS.D.isDown) {
-                GameObjects.player.top.setVelocity(velocityX, playerAngle > 0 ? 1 / velocityY : -velocityY);
+                let velocityY = velocities[getRandomNumber(0, velocities.length - 1)];
+                let velocityX = velocities[getRandomNumber(0, velocities.length - 1)];
+
+                GameObjects.player.top.setVelocity(velocityX, playerAngle > 0 ? 4 / velocityY : -velocityY);
 
                 this.playGame();
                 Steve.rememberKeyPress('r');
 
             } else if (CURSORS.left.isDown || KEYS.A.isDown) {
-                GameObjects.player.top.setVelocity(-velocityX, playerAngle < 0 ? 1 / velocityY : -velocityY);
+                let velocityY = velocities[getRandomNumber(0, velocities.length - 1)];
+                let velocityX = velocities[getRandomNumber(0, velocities.length - 1)];
+
+                GameObjects.player.top.setVelocity(-velocityX, playerAngle < 0 ? 4 / velocityY : -velocityY);
 
                 this.playGame();
                 Steve.rememberKeyPress('l');
             }
 
             /** Control balance with touch */
-            if (POINTER.isDown && POINTER.worldY > 150) {
-                if (POINTER.worldX < Config.width / 2) {
-                    GameObjects.player.top.setVelocity(-velocityX, playerAngle < 0 ? 1 / velocityY : -velocityY);
+            let pointer1Press = POINTER_1.isDown && POINTER_1.worldY > 150;
+            let pointer2Press = POINTER_2.isDown && POINTER_2.worldY > 150;
 
-                    Steve.rememberKeyPress('l');
+            if ((pointer1Press && POINTER_1.worldX < Config.width / 2) || (pointer2Press && POINTER_2.worldX < Config.width / 2)) {
+                let velocityY = velocities[getRandomNumber(0, velocities.length - 1)];
+                let velocityX = velocities[getRandomNumber(0, velocities.length - 1)];
 
-                } else if (POINTER.worldX >= Config.width / 2) {
-                    GameObjects.player.top.setVelocity(velocityX, playerAngle > 0 ? 1 / velocityY : -velocityY);
+                GameObjects.player.top.setVelocity(-velocityX, playerAngle < 0 ? 4 / velocityY : -velocityY);
 
-                    Steve.rememberKeyPress('r');
-                }
+                Steve.rememberKeyPress('l');
+                this.playGame();
 
+            } else if ((pointer1Press && POINTER_1.worldX >= Config.width / 2) || (pointer2Press && POINTER_2.worldX >= Config.width / 2)) {
+                let velocityY = velocities[getRandomNumber(0, velocities.length - 1)];
+                let velocityX = velocities[getRandomNumber(0, velocities.length - 1)];
+
+                GameObjects.player.top.setVelocity(velocityX, playerAngle > 0 ? 4 / velocityY : -velocityY);
+
+                Steve.rememberKeyPress('r');
                 this.playGame();
             }
 
@@ -559,7 +572,11 @@ class Main extends Phaser.Scene {
 
         /** Enable controls */
         CURSORS = this.input.keyboard.createCursorKeys();
-        POINTER = this.input.pointer1;
+
+        this.input.addPointer(1);
+        POINTER_1 = this.input.pointer1;
+        POINTER_2 = this.input.pointer2;
+
         KEYS = {
             A: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
             D: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
@@ -722,7 +739,8 @@ class Main extends Phaser.Scene {
 
             CURSORS = null;
             KEYS = null;
-            POINTER = null;
+            POINTER_1 = null;
+            POINTER_2 = null;
 
             OBSTACLES = [];
             OBSTACLES_FREQUENCY = 5;

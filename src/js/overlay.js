@@ -7,6 +7,7 @@ import ResultsTable from './resultsTable';
 import Request from './lib/request';
 import { preloadImages } from './lib/helper';
 
+import Steve from './steve';
 import * as Analytics from './lib/analytics';
 
 let BUTTONS = null;
@@ -257,14 +258,17 @@ class Overlay {
         result.appendChild(resultHeader);
 
         let title = makeElement('div', 'resultHeader__title', {
-            innerHTML: 'Ты прошёл<br>' + Ui.getCounterValue()
+            innerHTML: 'Я прошёл<br>' + Ui.getCounterValue()
         });
         resultHeader.appendChild(title);
 
         let actions = makeElement('div', 'resultHeader__actions');
         resultHeader.appendChild(actions);
 
-        Share.make(actions);
+        Share.make(actions, {
+            twitter: document.title,
+            url: window.location.protocol + '//' + window.location.hostname + '/special/genius/result/' + Steve.sessionId
+        });
 
         let restartButton = makeElement('button', 'resultHeader__restart', {
             innerHTML: Svg.restart + 'Ещё раз',
@@ -309,7 +313,7 @@ class Overlay {
         resultPromo.appendChild(resultPromoCode);
 
         let resultPromoCodeNode = makeElement('div', 'resultPromo__note', {
-            innerHTML: '*Промокод действует на первый заказ и&nbsp;при оплате картой онлайн. Минимальная сумма заказа 1300₽.'
+            innerHTML: '*Промокод действует на первый заказ и&nbsp;при оплате картой онлайн до 30 сентября 2018 года. Минимальная сумма заказа 1300₽.'
         });
         resultPromo.appendChild(resultPromoCodeNode);
 

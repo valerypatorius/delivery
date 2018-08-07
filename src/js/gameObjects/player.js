@@ -25,7 +25,7 @@ class Player {
             },
             axisoffsetX: -5,
             axisoffsetY: 80,
-            springLength: 260
+            springLength: 255
         };
 
         this.rightHand = this.matter.add.image(params.x + this.sizes.top.width / 2 + 5, params.y - this.sizes.bottom.height + 42, params.textures.hands.right, null, {
