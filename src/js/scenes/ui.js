@@ -226,7 +226,7 @@ class Ui extends Phaser.Scene {
 
             if (!isMobile()) {
                 TIP.start = this.make.text({
-                    x: x - 177,
+                    x: x - 257,
                     y: y - 40,
                     text: 'Используй',
                     style: {
@@ -236,16 +236,16 @@ class Ui extends Phaser.Scene {
                 }).setOrigin(0.5, 1);
 
                 TIP.end = this.make.text({
-                    x: x + 185,
+                    x: x + 205,
                     y: y - 40,
-                    text: ', чтобы держать равновесие',
+                    text: ', чтобы начать игру и держать равновесие',
                     style: {
                         font: '500 26px Montserrat',
                         fill: Colors.hex.white
                     }
                 }).setOrigin(0.5, 1);
 
-                TIP.icon = this.add.image(x - 55, y - 53, 'arrows').setScale(0.8);
+                TIP.icon = this.add.image(x - 135, y - 53, 'arrows').setScale(0.8);
 
                 this.tweens.addCounter({
                     from: 0.8,
@@ -262,7 +262,7 @@ class Ui extends Phaser.Scene {
                 TIP.text = this.make.text({
                     x: Config.width / 2,
                     y: y - 30,
-                    text: 'Нажимай на экран, чтобы держать равновесие',
+                    text: 'Нажимай, чтобы начать игру и держать равновесие',
                     style: {
                         font: '500 26px Montserrat',
                         fill: Colors.hex.white,

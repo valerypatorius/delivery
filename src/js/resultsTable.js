@@ -1,3 +1,5 @@
+import PerfectScrollbar from 'perfect-scrollbar';
+
 import Svg from './svg';
 import Request from './lib/request';
 import { makeElement, removeElement, removeChildren, isElementInDom } from './lib/dom';
@@ -13,6 +15,11 @@ class ResultsTable {
     }
 
     destroy() {
+        if (this.paginationScroll) {
+            this.paginationScroll.destroy();
+            this.paginationScroll = null;
+        }
+
         if (isElementInDom(this.wrapper)) {
             removeElement(this.wrapper);
         }
@@ -81,6 +88,15 @@ class ResultsTable {
             this.wrapper.appendChild(pagination);
 
             this.wrapper.classList.remove('state--loading');
+
+            if (this.paginationScroll) {
+                this.paginationScroll.update();
+            }
+
+            let button = document.querySelector(`[data-page="${page}"]`);
+            if (button) {
+                this.pagination.scrollLeft = button.offsetLeft;
+            }
         });
     }
 
@@ -105,8 +121,12 @@ class ResultsTable {
             }
 
             this.container.appendChild(row);
+
+            let score = item.score + ' м';
+            score = score.replace(/\s+/g, '&nbsp;');
+
             this.fillRow(row, [
-                item.rank, icon, item.name, item.score + '&nbsp;м'
+                item.rank, icon, item.name, score
             ]);
         });
     }
@@ -129,6 +149,14 @@ class ResultsTable {
                 }
 
                 this.pagination.appendChild(button);
+            }
+
+            if (!this.paginationScroll) {
+                this.paginationScroll = new PerfectScrollbar(this.pagination);
+            }
+
+            if (this.paginationScroll) {
+                this.paginationScroll.update();
             }
         }
     }

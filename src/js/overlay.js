@@ -258,16 +258,18 @@ class Overlay {
         result.appendChild(resultHeader);
 
         let title = makeElement('div', 'resultHeader__title', {
-            innerHTML: 'Я прошёл<br>' + Ui.getCounterValue()
+            innerHTML: 'Я прошёл<br>' + parseFloat(Ui.getCounterValue()) + ' метра'
         });
         resultHeader.appendChild(title);
 
         let actions = makeElement('div', 'resultHeader__actions');
         resultHeader.appendChild(actions);
 
+        let shareValue = (this.isLogined && Steve.sessionId) ? Steve.sessionId : parseFloat(Ui.getCounterValue());
+
         Share.make(actions, {
             twitter: document.title,
-            url: window.location.protocol + '//' + window.location.hostname + '/special/genius/result/' + Steve.sessionId
+            url: window.location.protocol + '//' + window.location.hostname + '/special/genius/result/' + shareValue
         });
 
         let restartButton = makeElement('button', 'resultHeader__restart', {
@@ -286,7 +288,7 @@ class Overlay {
         result.appendChild(resultPromo);
 
         let resultPromoTable = makeElement('div', 'resultPromo__table', {
-            innerHTML: Svg.cup + 'Найти результат в&nbsp;'
+            innerHTML: Svg.cup + 'Оставь результат в&nbsp;'
         });
         resultPromo.appendChild(resultPromoTable);
 
