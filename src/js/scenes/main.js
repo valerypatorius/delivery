@@ -423,6 +423,7 @@ class Main extends Phaser.Scene {
 
                 /** Drop bottom part */
                 GameObjects.player.bottom.setIgnoreGravity(false);
+                GameObjects.player.bottom.setStatic(false);
 
                 /** Increase player's body density to drop it quickly */
                 GameObjects.player.top.setDensity(200);

@@ -60,7 +60,7 @@ class Player {
                 mask: CollisionCategories.default
             },
             chamfer: { radius: 30 },
-        }).setIgnoreGravity(true);
+        }).setIgnoreGravity(true).setStatic(true);
 
         this.legs = this.matter.add.sprite(params.x, params.y - this.sizes.bottom.height / 2, params.textures.bottom, 0, {
             density: 0.0001,
