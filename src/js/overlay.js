@@ -161,7 +161,7 @@ class Overlay {
         start.appendChild(logos);
 
         let about = makeElement('div', 'start__about', {
-            innerHTML: 'Пройди как можно дальше, удерживая баланс и&nbsp;не падая, чтобы занять одно из первых <strong>10&nbsp;мест</strong> в&nbsp;турнирной таблице. Если окажешься среди победителей&nbsp;— получишь промо-код в&nbsp;<strong>Delivery Club на 3000&nbsp;рублей</strong>.'
+            innerHTML: 'Пройди как можно дальше, удерживая баланс и&nbsp;не падая, чтобы занять одно из первых <strong>10&nbsp;мест</strong> в&nbsp;турнирной таблице.'
         });
         start.appendChild(about);
 
@@ -173,12 +173,12 @@ class Overlay {
         });
         start.appendChild(button);
 
-        let rules = makeElement('a', 'start__rules', {
-            href: '/special/genius/terms',
-            target: '_blank',
-            textContent: 'Правила конкурса'
-        });
-        start.appendChild(rules);
+        // let rules = makeElement('a', 'start__rules', {
+        //     href: '/special/genius/terms',
+        //     target: '_blank',
+        //     textContent: 'Правила конкурса'
+        // });
+        // start.appendChild(rules);
 
         this.content.appendChild(start);
         this.el.appendChild(this.content);

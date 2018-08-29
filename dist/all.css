@@ -117,7 +117,7 @@ strong {
 .noise {
   width: 100%;
   height: 100%;
-  background-image: url("assets/noise.gif");
+  background-image: url("../assets/noise.gif");
   mix-blend-mode: overlay;
   position: fixed;
   top: 0;
@@ -165,7 +165,7 @@ strong {
   position: absolute;
   top: 0;
   left: 0;
-  background-image: url("assets/start.jpg");
+  background-image: url("../assets/start.jpg");
   background-size: 200% auto;
   background-position: 50% 0;
   background-repeat: no-repeat;
@@ -276,7 +276,7 @@ strong {
   height: 62px;
   font-size: 22px;
   font-weight: 700;
-  background-image: url("assets/ui/start_button.png");
+  background-image: url("../assets/ui/start_button.png");
   background-repeat: no-repeat;
   background-position: 50% 0;
   background-color: transparent;
@@ -335,7 +335,7 @@ strong {
   margin-bottom: 15px;
   font-size: 22px;
   font-weight: 700;
-  background-image: url("assets/ui/pause_button.png");
+  background-image: url("../assets/ui/pause_button.png");
   background-repeat: no-repeat;
   background-position: 50% 0;
   background-color: transparent;
@@ -366,7 +366,7 @@ strong {
 .resultHeader {
   box-sizing: border-box;
   padding: 15px;
-  background-image: url("assets/result.jpg");
+  background-image: url("../assets/result.jpg");
   background-repeat: no-repeat;
   background-size: auto 160px;
   background-position: 100% 0;
@@ -407,7 +407,7 @@ strong {
 .resultHeader__restart {
   width: 222px;
   height: 47px;
-  background-image: url("assets/ui/restart_button.png");
+  background-image: url("../assets/ui/restart_button.png");
   background-repeat: no-repeat;
   background-position: 50% 0;
   background-color: transparent;
@@ -481,7 +481,7 @@ strong {
   height: 61px;
   font-size: 22px;
   font-weight: 700;
-  background-image: url("assets/ui/pause_button.png");
+  background-image: url("../assets/ui/pause_button.png");
   background-repeat: no-repeat;
   background-position: 50% 0;
   background-color: transparent;
@@ -493,7 +493,7 @@ strong {
   .resultPromo__link {
     width: 222px;
     height: 47px;
-    background-image: url("assets/ui/restart_button.png");
+    background-image: url("../assets/ui/restart_button.png");
     background-repeat: no-repeat;
     background-position: 50% 0;
     background-color: transparent;
@@ -537,13 +537,13 @@ strong {
 }
 .likely__widget--facebook {
   width: 177px;
-  background-image: url("assets/ui/fb_button.png");
+  background-image: url("../assets/ui/fb_button.png");
 }
 .likely__widget--vkontakte {
-  background-image: url("assets/ui/vk_button.png");
+  background-image: url("../assets/ui/vk_button.png");
 }
 .likely__widget--twitter {
-  background-image: url("assets/ui/twitter_button.png");
+  background-image: url("../assets/ui/twitter_button.png");
 }
 .likely__icon svg {
   width: 22px;
@@ -584,7 +584,7 @@ strong {
 .resultTable__back {
   width: 222px;
   height: 47px;
-  background-image: url("assets/ui/restart_button.png");
+  background-image: url("../assets/ui/restart_button.png");
   background-repeat: no-repeat;
   background-position: 50% 0;
   background-color: transparent;
@@ -824,16 +824,16 @@ strong {
   background-position: 50% 100%;
 }
 .auth__button--vk {
-  background-image: url("assets/ui/login/vk.png");
+  background-image: url("../assets/ui/login/vk.png");
 }
 .auth__button--fb {
-  background-image: url("assets/ui/login/fb.png");
+  background-image: url("../assets/ui/login/fb.png");
 }
 .auth__button--twitter {
-  background-image: url("assets/ui/login/twitter.png");
+  background-image: url("../assets/ui/login/twitter.png");
 }
 .auth__button--google {
-  background-image: url("assets/ui/login/google.png");
+  background-image: url("../assets/ui/login/google.png");
 }
 .auth__rules {
   font-size: 14px;

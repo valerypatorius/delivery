@@ -16,23 +16,23 @@ const plugins = [
     new webpack.DefinePlugin({
         IS_PRODUCTION: JSON.stringify(isProduction)
     }),
-    new JavaScriptObfuscator ({
-        compact: true,
-        controlFlowFlattening: false,
-        deadCodeInjection: false,
-        debugProtection: false,
-        debugProtectionInterval: false,
-        disableConsoleOutput: true,
-        identifierNamesGenerator: 'hexadecimal',
-        log: false,
-        renameGlobals: false,
-        rotateStringArray: true,
-        selfDefending: true,
-        stringArray: true,
-        stringArrayEncoding: false,
-        stringArrayThreshold: 0.75,
-        unicodeEscapeSequence: false
-    })
+    // new JavaScriptObfuscator ({
+    //     compact: true,
+    //     controlFlowFlattening: false,
+    //     deadCodeInjection: false,
+    //     debugProtection: false,
+    //     debugProtectionInterval: false,
+    //     disableConsoleOutput: true,
+    //     identifierNamesGenerator: 'hexadecimal',
+    //     log: false,
+    //     renameGlobals: false,
+    //     rotateStringArray: true,
+    //     selfDefending: true,
+    //     stringArray: true,
+    //     stringArrayEncoding: false,
+    //     stringArrayThreshold: 0.75,
+    //     unicodeEscapeSequence: false
+    // })
 ];
 
 if (isProduction) {
@@ -40,23 +40,6 @@ if (isProduction) {
         new UglifyJsPlugin({
             sourceMap: true
         }),
-        // new JavaScriptObfuscator ({
-        //     compact: true,
-        //     controlFlowFlattening: false,
-        //     deadCodeInjection: false,
-        //     debugProtection: false,
-        //     debugProtectionInterval: false,
-        //     disableConsoleOutput: true,
-        //     identifierNamesGenerator: 'hexadecimal',
-        //     log: false,
-        //     renameGlobals: false,
-        //     rotateStringArray: true,
-        //     selfDefending: true,
-        //     stringArray: true,
-        //     stringArrayEncoding: false,
-        //     stringArrayThreshold: 0.75,
-        //     unicodeEscapeSequence: false
-        // })
     ]);
 } else {
     plugins.push(...[

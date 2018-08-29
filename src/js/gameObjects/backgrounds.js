@@ -25,13 +25,14 @@ class Backgrounds {
                     instance: this.game.add.group(),
                     lastImage: null,
                     allowNext: false,
-                    length: 6,
+                    length: 7,
                     last: 1,
                     offsetBetween: 100,
                     offsetBottom: 100,
                     duration: 80,
                     depth: -6,
-                    isActive: true
+                    isActive: true,
+                    hasExtra: true
                 },
                 cords: {
                     label: 'cords',
@@ -45,7 +46,7 @@ class Backgrounds {
                     offsetBottom: 40,
                     duration: 65,
                     depth: -4,
-                    isActive: true
+                    isActive: true,
                 },
                 ground: {
                     label: 'ground',
@@ -127,13 +128,14 @@ class Backgrounds {
                     instance: this.game.add.group(),
                     lastImage: null,
                     allowNext: false,
-                    length: 8,
+                    length: 9,
                     last: 1,
                     offsetBetween: 120,
                     offsetBottom: 100,
                     duration: 55,
                     depth: -3,
-                    isActive: false
+                    isActive: false,
+                    hasExtra: true
                 }
             },
             city: {
@@ -253,6 +255,12 @@ class Backgrounds {
 
                     if (group.last >= group.length) {
                         group.last = 1;
+
+                        /** Show extra image only once */
+                        if (group.hasExtra) {
+                            group.length -= 1;
+                            group.hasExtra = false;
+                        }
                     } else {
                         group.last++;
                     }

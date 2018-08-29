@@ -25,7 +25,7 @@ import {
 let ASSETS_PATH = window.__PATH;
 
 let LOCATION = 0;
-let LOCATIONS_INTERVAL = 30;
+let LOCATIONS_INTERVAL = 40;
 
 let AUDIO = {};
 
@@ -103,7 +103,7 @@ class Main extends Phaser.Scene {
             /** Global backgrounds */
             path = ASSETS_PATH + '/assets/background/global';
 
-            for (let i = 1; i <= 6; i++) {
+            for (let i = 1; i <= 7; i++) {
                 this.load.image(`background_global_landscape_${i}`, `${path}/landscape/${i}.png`);
             }
 
@@ -129,7 +129,7 @@ class Main extends Phaser.Scene {
                 this.load.image(`background_forest_back_${i}`, `${path}/back/${i}.png`);
             }
 
-            for (let i = 1; i <= 8; i++) {
+            for (let i = 1; i <= 9; i++) {
                 this.load.image(`background_forest_front_${i}`, `${path}/front/${i}.png`);
             }
 
